@@ -7,7 +7,7 @@ spring:
     password: postgres
   jpa:
     hibernate:
-      ddl-auto: create # todo : will be change
+      ddl-auto: update # todo : will be change
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
