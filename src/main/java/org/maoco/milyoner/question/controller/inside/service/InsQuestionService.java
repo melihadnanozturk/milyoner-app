@@ -1,7 +1,7 @@
-package org.maoco.milyoner.question.controller.inside;
+package org.maoco.milyoner.question.controller.inside.service;
 
-import org.maoco.milyoner.question.controller.inside.request.InsQuestionRequest;
-import org.maoco.milyoner.question.controller.inside.response.InsQuestionResponse;
+import org.maoco.milyoner.question.controller.inside.dto.request.InsQuestionRequest;
+import org.maoco.milyoner.question.controller.inside.dto.response.InsQuestionResponse;
 
 public interface InsQuestionService {
 

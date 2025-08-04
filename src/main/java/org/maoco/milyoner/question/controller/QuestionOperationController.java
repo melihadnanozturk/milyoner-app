@@ -26,6 +26,7 @@ public class QuestionOperationController {
         QuestionResponse data = QuestionResponse.builder()
                 .questionId(entity.getId())
                 .questionText(entity.getQuestionText())
+                .questionLevel(entity.getQuestionLevel())
                 .answers(entity.getAnswers().stream().map(answer -> AnswerResponse.builder()
                         .answerId(answer.getId())
                         .isCorrect(answer.getIsCorrect())
@@ -38,13 +39,14 @@ public class QuestionOperationController {
     }
 
     @PutMapping("/{questionId}")
-    public ApiResponse<UpdateQuestionResponse> updateQuestion(@PathVariable Long questionId, @RequestBody UpdateQuestionRequest request) {
+    public ApiResponse<UpdateQuestionResponse> updateQuestion(@PathVariable Long questionId, @Valid @RequestBody UpdateQuestionRequest request) {
         request.setQuestionId(questionId);
         QuestionEntity response = operationService.updateQuestion(request);
 
         UpdateQuestionResponse data = UpdateQuestionResponse.builder()
                 .questionId(response.getId())
                 .questionText(response.getQuestionText())
+                .questionLevel(response.getQuestionLevel())
                 .build();
 
         return ApiResponse.success(data);

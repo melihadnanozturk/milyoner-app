@@ -1,8 +1,9 @@
-package org.maoco.milyoner.question.controller.inside;
+package org.maoco.milyoner.question.controller.inside.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.maoco.milyoner.question.controller.inside.request.InsQuestionRequest;
-import org.maoco.milyoner.question.controller.inside.response.InsQuestionResponse;
+import org.maoco.milyoner.question.controller.inside.service.InsQuestionService;
+import org.maoco.milyoner.question.controller.inside.dto.request.InsQuestionRequest;
+import org.maoco.milyoner.question.controller.inside.dto.response.InsQuestionResponse;
 import org.maoco.milyoner.question.controller.response.AnswerResponse;
 import org.maoco.milyoner.question.entity.QuestionEntity;
 import org.maoco.milyoner.question.service.QuestionQueryService;

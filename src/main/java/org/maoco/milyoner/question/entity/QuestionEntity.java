@@ -17,6 +17,9 @@ public class QuestionEntity {
     @Column(name = "question_text")
     private String questionText;
 
+    @Column(name = "question_level")
+    private Long questionLevel;
+
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "answer_id",referencedColumnName = "id")
     private List<AnswerEntity> answers;

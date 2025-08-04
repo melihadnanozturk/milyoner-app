@@ -9,4 +9,5 @@ public class UpdateQuestionResponse {
 
     private Long questionId;
     private String questionText;
+    private Long questionLevel;
 }

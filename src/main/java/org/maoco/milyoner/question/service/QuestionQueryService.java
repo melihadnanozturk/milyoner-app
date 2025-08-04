@@ -9,4 +9,6 @@ public interface QuestionQueryService {
     Collection<QuestionEntity> getAllQuestions();
 
     QuestionEntity getQuestionById(Long id);
+
+    QuestionEntity getQuestionByLevel(Long level);
 }

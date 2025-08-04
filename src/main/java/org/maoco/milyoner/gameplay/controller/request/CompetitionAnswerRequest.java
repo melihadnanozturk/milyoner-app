@@ -1,4 +1,4 @@
-package org.maoco.milyoner.gameplay.controller.response;
+package org.maoco.milyoner.gameplay.controller.request;
 
 public class CompetitionAnswerRequest {
 }
