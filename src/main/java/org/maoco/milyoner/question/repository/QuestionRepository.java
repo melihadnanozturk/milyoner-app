@@ -12,4 +12,7 @@ public interface QuestionRepository extends PagingAndSortingRepository<QuestionE
 
     @Query(value = "SELECT q FROM QuestionEntity q WHERE q.questionLevel = :level ORDER BY RANDOM() LIMIT 1")
     Optional<QuestionEntity> findByQuestionLevel(@Param("level") Long level);
+
+    @Query(value = "SELECT q FROM QuestionEntity q WHERE q.id =: questionId AND q.answers")
+    Optional<QuestionEntity> findByIdAndGivenAnswer(@Param("questionId") Long questionId, @Param("answerId") Long answerId);
 }

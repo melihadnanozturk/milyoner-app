@@ -20,7 +20,6 @@ public class QuestionEntity {
     @Column(name = "question_level")
     private Long questionLevel;
 
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "answer_id",referencedColumnName = "id")
+    @OneToMany(cascade = CascadeType.ALL,mappedBy = "question")
     private List<AnswerEntity> answers;
 }

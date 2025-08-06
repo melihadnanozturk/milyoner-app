@@ -2,6 +2,8 @@ package org.maoco.milyoner.common;
 
 
 import org.hibernate.service.spi.ServiceException;
+import org.maoco.milyoner.common.exception.NotFoundException;
+import org.maoco.milyoner.question.service.exception.CreateAnswerException;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
@@ -16,8 +18,15 @@ import java.util.List;
 public class ControllerAdvice {
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(ServiceException.class)
-    public ApiResponse<String> handleServiceException(ServiceException e) {
+    @ExceptionHandler(NotFoundException.class)
+    public ApiResponse<String> handleNotFoundException(NotFoundException e) {
+
+        return ApiResponse.failed(e.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(CreateAnswerException.class)
+    public ApiResponse<String> handleCreateAnswerException(CreateAnswerException e) {
 
         return ApiResponse.failed(e.getMessage(), HttpStatus.BAD_REQUEST);
     }

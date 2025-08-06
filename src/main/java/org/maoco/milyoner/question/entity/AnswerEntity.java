@@ -25,6 +25,10 @@ public class AnswerEntity {
     @Column(name = "isActivate")
     private Boolean isActivate = true; //burada default değer nasıl verebilrim ?
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "question_id")
+    QuestionEntity question;
+
     public AnswerEntity(String answerText, Boolean isCorrect) {
         this.answerText = answerText;
         this.isCorrect = isCorrect;
