@@ -48,13 +48,17 @@ public class QuestionQueryServiceImpl implements QuestionQueryService {
 
         List<AnswerEntity> answers = entity.getAnswers();
 
-        List<AnswerEntity> correctAnswer = answers.stream().filter(AnswerEntity::getIsCorrect)
+        List<AnswerEntity> activateAnswers = answers.stream().filter(AnswerEntity::getIsActivate).toList();
+
+        /*todo : AI'a sor => Veriler db de yer alıyor, dışarıdan yanlış bir bilgi eklenmesi söz konus olmaza (@Valid).
+        *  DBden gelen bilgileri yine de kontrol etmek gerekir mi ? Alttaki gibi kontrol sağlamak gerekir mi ?  */
+        List<AnswerEntity> correctAnswer = activateAnswers.stream().filter(AnswerEntity::getIsCorrect)
                 .findFirst()
                 .map(List::of)
                 //todo : new exception
                 .orElseThrow(() -> new NotFoundException("There is no correct answer in question with level: " + level));
 
-        List<AnswerEntity> wrongAnswers = answers.stream()
+        List<AnswerEntity> wrongAnswers = activateAnswers.stream()
                 .filter(answer -> !answer.getIsCorrect())
                 .collect(Collectors.collectingAndThen(Collectors.toList(), list -> {
                             if (list.size() < WRONG_ANSWER_LIMIT) {

@@ -1,4 +1,4 @@
-package org.maoco.milyoner.question.controller.inside.dto.response;
+package org.maoco.milyoner.question.controller.port_in.dto.response;
 
 import lombok.Builder;
 import lombok.Getter;

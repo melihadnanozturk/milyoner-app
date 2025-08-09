@@ -1,6 +1,6 @@
 package org.maoco.milyoner.gameplay.controller;
 
-import lombok.RequiredArgsConstructor;
+import jakarta.validation.Valid;
 import org.maoco.milyoner.common.ApiResponse;
 import org.maoco.milyoner.gameplay.controller.request.GameActionRequest;
 import org.maoco.milyoner.gameplay.controller.request.GameQuestionAnswerRequest;
@@ -14,14 +14,17 @@ import org.springframework.web.bind.annotation.*;
 
 @RequestMapping("/game")
 @RestController
-@RequiredArgsConstructor
 public class GameController {
 
     private final GameService service;
 
+    public GameController(GameService gameService) {
+        this.service = gameService;
+    }
+
     //TODO : CheckUser ?? / StartingGame
     @PostMapping("/start")
-    public ApiResponse<StartGameResponse> startGame(@RequestBody StartGameRequest request) {
+    public ApiResponse<StartGameResponse> startGame(@RequestBody @Valid StartGameRequest request) {
         Game game = service.startGame(request);
 
         return ApiResponse.success(StartGameResponse.builder()
@@ -32,7 +35,6 @@ public class GameController {
                 .build());
     }
 
-    //TODO : GetQuestionByLevel
     @GetMapping("/questions")
     public ApiResponse<GameQuestionQueryResponse> getQuestion(@RequestBody GameQuestionQueryRequest request) {
         Question question = service.getQuestion(request);
@@ -45,6 +47,7 @@ public class GameController {
                         .questionLevel(request.getQuestionLevel())
                         .build())
                 .question(QuestionResponse.builder()
+                        .questionId(question.getQuestionId())
                         .questionText(question.getQuestionText())
                         .answers(question.getAnswers())
                         .build())
@@ -57,8 +60,14 @@ public class GameController {
     //TODO : SetQuestion And CheckAnswer, NextLevel-Won || Lose
     @PostMapping("/questions")
     public ApiResponse<GameResponse> setAnswer(@RequestBody GameQuestionAnswerRequest request) {
-        service.checkAnswer(request);
-        return ApiResponse.success(null);
+        Game game = service.checkAnswer(request);
+
+        return ApiResponse.success(GameResponse.builder()
+                .questionLevel(game.getQuestionLevel())
+                .playerId(game.getPlayerId())
+                .gameId(game.getGameId())
+                .gameStatus(game.getGameStatus())
+                .build());
     }
 
 

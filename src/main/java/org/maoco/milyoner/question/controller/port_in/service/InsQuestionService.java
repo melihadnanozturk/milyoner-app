@@ -1,22 +1,21 @@
-package org.maoco.milyoner.question.controller.inside.service.impl;
+package org.maoco.milyoner.question.controller.port_in.service;
 
-import lombok.RequiredArgsConstructor;
-import org.maoco.milyoner.question.controller.inside.dto.response.InsAnswerResponse;
-import org.maoco.milyoner.question.controller.inside.service.InsQuestionService;
-import org.maoco.milyoner.question.controller.inside.dto.response.InsQuestionResponse;
-import org.maoco.milyoner.question.controller.response.AnswerResponse;
+import org.maoco.milyoner.question.controller.port_in.dto.response.InsAnswerResponse;
+import org.maoco.milyoner.question.controller.port_in.dto.response.InsQuestionResponse;
 import org.maoco.milyoner.question.entity.AnswerEntity;
 import org.maoco.milyoner.question.entity.QuestionEntity;
 import org.maoco.milyoner.question.service.QuestionQueryService;
 import org.springframework.stereotype.Service;
 
 @Service
-@RequiredArgsConstructor
-public class InsQuestionServiceImpl implements InsQuestionService {
+public class InsQuestionService {
 
     private final QuestionQueryService queryService;
 
-    @Override
+    public InsQuestionService(QuestionQueryService questionQueryService) {
+        this.queryService = questionQueryService;
+    }
+
     public InsQuestionResponse getQuestion(Long level) {
         QuestionEntity entity = queryService.getQuestionByLevel(level);
 
@@ -25,22 +24,19 @@ public class InsQuestionServiceImpl implements InsQuestionService {
         return InsQuestionResponse.builder()
                 .questionId(entity.getId())
                 .questionText(entity.getQuestionText())
-                .answers(entity.getAnswers().stream().map(answer -> AnswerResponse.builder()
+                .answers(entity.getAnswers().stream().map(answer -> InsAnswerResponse.builder()
                         .answerId(answer.getId())
-                        .isCorrect(answer.getIsCorrect())
-                        .isActivate(answer.getIsActivate())
                         .answerText(answer.getAnswerText())
                         .build()).toList())
                 .build();
     }
 
-    @Override
     public InsAnswerResponse handleAnswer(Long answerId, Long questionId) {
         AnswerEntity answerEntity = queryService.handleAnswer(answerId, questionId);
         return InsAnswerResponse.builder()
+                .isCorrect(answerEntity.getIsCorrect())
                 .answerId(answerEntity.getId())
                 .answerText(answerEntity.getAnswerText())
-                .isCorrect(answerEntity.getIsCorrect())
                 .build();
     }
 }

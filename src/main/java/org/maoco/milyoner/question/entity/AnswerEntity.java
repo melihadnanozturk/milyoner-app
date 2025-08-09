@@ -29,9 +29,10 @@ public class AnswerEntity {
     @JoinColumn(name = "question_id")
     QuestionEntity question;
 
-    public AnswerEntity(String answerText, Boolean isCorrect) {
+    public AnswerEntity(String answerText, Boolean isCorrect,QuestionEntity entity) {
         this.answerText = answerText;
         this.isCorrect = isCorrect;
+        this.question = entity;
         this.isActivate = true;
     }
 

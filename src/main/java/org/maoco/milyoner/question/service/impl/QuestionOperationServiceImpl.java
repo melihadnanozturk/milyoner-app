@@ -1,7 +1,6 @@
 package org.maoco.milyoner.question.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.hibernate.service.spi.ServiceException;
 import org.maoco.milyoner.common.exception.NotFoundException;
 import org.maoco.milyoner.question.controller.request.CreateAnswerQuestion;
 import org.maoco.milyoner.question.controller.request.CreateNewQuestionRequest;
@@ -21,7 +20,7 @@ public class QuestionOperationServiceImpl implements QuestionOperationService {
 
     private final QuestionRepository questionRepository;
 
-    private void checkTrueAnswerNumber(List<CreateAnswerQuestion> answers){
+    private void checkTrueAnswerNumber(List<CreateAnswerQuestion> answers) {
         List<CreateAnswerQuestion> trueAnswers = answers.stream().filter(q -> q.getIsCorrect()).toList();
         if (trueAnswers.size() != 1) throw new CreateAnswerException();
     }
@@ -32,13 +31,15 @@ public class QuestionOperationServiceImpl implements QuestionOperationService {
 
         QuestionEntity entity = new QuestionEntity();
         entity.setQuestionText(request.getQuestionText());
+        entity.setQuestionLevel(request.getQuestionLevel());
 
         List<AnswerEntity> answerEntities = request.getAnswers().stream()
-                .map(answer -> new AnswerEntity(answer.getAnswerText(), answer.getIsCorrect()))
+                .map(answer ->
+                     new AnswerEntity(answer.getAnswerText(), answer.getIsCorrect(), entity)
+                )
                 .toList();
 
         entity.setAnswers(answerEntities);
-        entity.setQuestionLevel(request.getQuestionLevel());
 
         return questionRepository.save(entity);
     }

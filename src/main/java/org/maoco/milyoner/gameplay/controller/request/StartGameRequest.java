@@ -1,5 +1,6 @@
 package org.maoco.milyoner.gameplay.controller.request;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 import lombok.Value;
 import org.maoco.milyoner.gameplay.model.GameStatus;
@@ -8,6 +9,7 @@ import org.maoco.milyoner.gameplay.model.GameStatus;
 @Builder
 public class StartGameRequest {
 
+    @NotBlank(message = "Username can not be blank")
     String username;
 
     @Builder.Default
