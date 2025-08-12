@@ -1,9 +1,9 @@
-package org.maoco.milyoner.gameplay.controller.request;
+package org.maoco.milyoner.gameplay.web.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 import lombok.Value;
-import org.maoco.milyoner.gameplay.model.GameStatus;
+import org.maoco.milyoner.gameplay.domain.GameStatus;
 
 @Value
 @Builder

@@ -1,4 +1,4 @@
-package org.maoco.milyoner.question.service.impl;
+package org.maoco.milyoner.question.service;
 
 import lombok.RequiredArgsConstructor;
 import org.maoco.milyoner.common.exception.NotFoundException;

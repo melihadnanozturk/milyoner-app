@@ -2,7 +2,7 @@ package org.maoco.milyoner.question.web.controller.port_in.service;
 
 import org.maoco.milyoner.question.data.entity.AnswerEntity;
 import org.maoco.milyoner.question.domain.Question;
-import org.maoco.milyoner.question.service.impl.QuestionQueryService;
+import org.maoco.milyoner.question.service.QuestionQueryService;
 import org.maoco.milyoner.question.web.controller.port_in.dto.response.InsAnswerResponse;
 import org.maoco.milyoner.question.web.controller.port_in.dto.response.InsQuestionResponse;
 import org.springframework.stereotype.Service;

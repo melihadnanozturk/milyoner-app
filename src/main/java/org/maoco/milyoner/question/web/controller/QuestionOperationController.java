@@ -9,7 +9,7 @@ import org.maoco.milyoner.question.web.dto.response.AnswerResponse;
 import org.maoco.milyoner.question.web.dto.response.QuestionResponse;
 import org.maoco.milyoner.question.web.dto.response.UpdateQuestionResponse;
 import org.maoco.milyoner.question.data.entity.QuestionEntity;
-import org.maoco.milyoner.question.service.impl.QuestionOperationService;
+import org.maoco.milyoner.question.service.QuestionOperationService;
 import org.springframework.web.bind.annotation.*;
 
 @RestController

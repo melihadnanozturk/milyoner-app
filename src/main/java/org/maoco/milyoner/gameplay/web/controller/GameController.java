@@ -1,15 +1,15 @@
-package org.maoco.milyoner.gameplay.controller;
+package org.maoco.milyoner.gameplay.web.controller;
 
 import jakarta.validation.Valid;
 import org.maoco.milyoner.common.ApiResponse;
-import org.maoco.milyoner.gameplay.controller.request.GameActionRequest;
-import org.maoco.milyoner.gameplay.controller.request.GameQuestionAnswerRequest;
-import org.maoco.milyoner.gameplay.controller.request.GameQuestionQueryRequest;
-import org.maoco.milyoner.gameplay.controller.request.StartGameRequest;
-import org.maoco.milyoner.gameplay.controller.response.*;
-import org.maoco.milyoner.gameplay.model.Game;
-import org.maoco.milyoner.gameplay.model.Question;
+import org.maoco.milyoner.gameplay.web.dto.request.GameActionRequest;
+import org.maoco.milyoner.gameplay.web.dto.request.GameQuestionAnswerRequest;
+import org.maoco.milyoner.gameplay.web.dto.request.GameQuestionQueryRequest;
+import org.maoco.milyoner.gameplay.web.dto.request.StartGameRequest;
+import org.maoco.milyoner.gameplay.domain.Game;
+import org.maoco.milyoner.gameplay.domain.Question;
 import org.maoco.milyoner.gameplay.service.GameService;
+import org.maoco.milyoner.gameplay.web.dto.response.*;
 import org.springframework.web.bind.annotation.*;
 
 @RequestMapping("/game")

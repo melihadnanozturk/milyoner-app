@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.maoco.milyoner.common.ApiResponse;
 import org.maoco.milyoner.question.data.entity.QuestionEntity;
 import org.maoco.milyoner.question.domain.Question;
-import org.maoco.milyoner.question.service.impl.QuestionQueryService;
+import org.maoco.milyoner.question.service.QuestionQueryService;
 import org.maoco.milyoner.question.web.dto.response.AnswerResponse;
 import org.maoco.milyoner.question.web.dto.response.QuestionResponse;
 import org.springframework.web.bind.annotation.GetMapping;

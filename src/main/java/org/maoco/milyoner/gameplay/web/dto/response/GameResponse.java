@@ -1,9 +1,9 @@
-package org.maoco.milyoner.gameplay.controller.response;
+package org.maoco.milyoner.gameplay.web.dto.response;
 
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import org.maoco.milyoner.gameplay.model.GameStatus;
+import org.maoco.milyoner.gameplay.domain.GameStatus;
 
 @Getter
 @Setter

@@ -1,4 +1,4 @@
-package org.maoco.milyoner.gameplay.controller.request;
+package org.maoco.milyoner.gameplay.web.dto.request;
 
 import lombok.Getter;
 

@@ -1,4 +1,4 @@
-package org.maoco.milyoner.gameplay.model;
+package org.maoco.milyoner.gameplay.domain;
 
 import lombok.Builder;
 import lombok.Getter;
