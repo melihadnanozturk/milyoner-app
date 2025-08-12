@@ -9,6 +9,7 @@ import lombok.Setter;
 @Builder
 public class Answer {
     private Long id;
-    private Boolean isCorrect;
     private String answerText;
+    private Boolean isCorrect;
+    private Boolean isActivate; // ??
 }

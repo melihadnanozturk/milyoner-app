@@ -23,3 +23,5 @@ public class QuestionEntity {
     @OneToMany(cascade = CascadeType.ALL,mappedBy = "question")
     private List<AnswerEntity> answers;
 }
+
+//todo: Sorularda aktif pasif field ekleyebilirsin

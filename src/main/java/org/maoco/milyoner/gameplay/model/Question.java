@@ -2,12 +2,14 @@ package org.maoco.milyoner.gameplay.model;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 import org.maoco.milyoner.question.web.controller.port_in.dto.response.InsQuestionResponse;
 
 import java.util.List;
 
 @Getter
 @Builder
+@Setter
 public class Question {
     private Long questionId;
     private String questionText;

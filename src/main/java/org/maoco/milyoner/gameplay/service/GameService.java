@@ -2,9 +2,12 @@ package org.maoco.milyoner.gameplay.service;
 
 import com.google.common.hash.Hashing;
 import lombok.RequiredArgsConstructor;
+import org.maoco.milyoner.common.exception.AnswerException;
+import org.maoco.milyoner.common.exception.NotFoundException;
 import org.maoco.milyoner.gameplay.controller.request.GameQuestionAnswerRequest;
 import org.maoco.milyoner.gameplay.controller.request.GameQuestionQueryRequest;
 import org.maoco.milyoner.gameplay.controller.request.StartGameRequest;
+import org.maoco.milyoner.gameplay.model.Answer;
 import org.maoco.milyoner.gameplay.model.Game;
 import org.maoco.milyoner.gameplay.model.GameStatus;
 import org.maoco.milyoner.gameplay.model.Question;
@@ -12,13 +15,19 @@ import org.maoco.milyoner.question.web.controller.port_in.service.InsQuestionSer
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class GameService {
 
     private final InsQuestionService insQuestionService;
+
+    private final int WRONG_ANSWER_LIMITS = 3;
 
     public Game startGame(StartGameRequest request) {
 
@@ -43,6 +52,37 @@ public class GameService {
         this.checkGameStatus(request);
 
         var data = insQuestionService.getQuestion(request.getQuestionLevel());
+
+        Question question = Question.of(data);
+
+        List<Answer> answers = question.getAnswers();
+
+        List<Answer> activateAnswers = answers.stream().filter(Answer::getIsActivate).toList();
+
+        /*todo : AI'a sor => Veriler db de yer alıyor, dışarıdan yanlış bir bilgi eklenmesi söz konus olmaza (@Valid).
+         *  DBden gelen bilgileri yine de kontrol etmek gerekir mi ? Alttaki gibi kontrol sağlamak gerekir mi ?  */
+        List<Answer> correctAnswer = activateAnswers.stream().filter(Answer::getIsCorrect)
+                .findFirst()
+                .map(List::of)
+                //todo : new exception
+                .orElseThrow(() -> new NotFoundException("There is no correct answer in question with level: " + request.getQuestionLevel()));
+
+        List<Answer> wrongAnswers = activateAnswers.stream()
+                .filter(answer -> !answer.getIsCorrect())
+                .collect(Collectors.collectingAndThen(Collectors.toList(), list -> {
+                            if (list.size() < WRONG_ANSWER_LIMITS) {
+                                new AnswerException("There is not enough wrong answer in question with questionId: " + question.getQuestionId());
+                            }
+                            Collections.shuffle(list);
+                            return list.stream().limit(WRONG_ANSWER_LIMITS).collect(Collectors.toList());
+                        }
+                ));
+
+        List finalAnswers = new ArrayList();
+        finalAnswers.addAll(correctAnswer);
+        finalAnswers.addAll(wrongAnswers);
+
+        question.setAnswers(finalAnswers);
 
         return Question.of(data);
     }
