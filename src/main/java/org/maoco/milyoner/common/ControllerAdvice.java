@@ -1,7 +1,6 @@
 package org.maoco.milyoner.common;
 
 
-import org.hibernate.service.spi.ServiceException;
 import org.maoco.milyoner.common.exception.NotFoundException;
 import org.maoco.milyoner.question.service.exception.CreateAnswerException;
 import org.springframework.http.HttpStatus;

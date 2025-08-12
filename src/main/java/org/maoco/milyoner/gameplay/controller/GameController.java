@@ -49,7 +49,10 @@ public class GameController {
                 .question(QuestionResponse.builder()
                         .questionId(question.getQuestionId())
                         .questionText(question.getQuestionText())
-                        .answers(question.getAnswers())
+                        .answers(question.getAnswers().stream().map(answer -> AnswerResponse.builder()
+                                .id(answer.getId())
+                                .text(answer.getAnswerText())
+                                .build()).toList())
                         .build())
                 .build();
 

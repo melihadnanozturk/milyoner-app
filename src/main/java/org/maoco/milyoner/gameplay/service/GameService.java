@@ -8,7 +8,7 @@ import org.maoco.milyoner.gameplay.controller.request.StartGameRequest;
 import org.maoco.milyoner.gameplay.model.Game;
 import org.maoco.milyoner.gameplay.model.GameStatus;
 import org.maoco.milyoner.gameplay.model.Question;
-import org.maoco.milyoner.question.controller.port_in.service.InsQuestionService;
+import org.maoco.milyoner.question.web.controller.port_in.service.InsQuestionService;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
@@ -18,7 +18,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class GameService {
 
-    private final InsQuestionService questionService;
+    private final InsQuestionService insQuestionService;
 
     public Game startGame(StartGameRequest request) {
 
@@ -42,16 +42,14 @@ public class GameService {
     public Question getQuestion(GameQuestionQueryRequest request) {
         this.checkGameStatus(request);
 
-        //todo : burada gerçekten status guncelleyebilir miyiz ?
-
-        var data = questionService.getQuestion(request.getQuestionLevel());
+        var data = insQuestionService.getQuestion(request.getQuestionLevel());
 
         return Question.of(data);
     }
 
     //todo: cevaplar burada geldikçe, her defasında oyun statusunu kontrol etmem gerekir mi ?
     public Game checkAnswer(GameQuestionAnswerRequest request) {
-        var data = questionService.handleAnswer(request.getQuestionId(), request.getAnswerId());
+        var data = insQuestionService.handleAnswer(request.getQuestionId(), request.getAnswerId());
 
 
         if (!data.getIsCorrect().equals(true)) {
@@ -100,7 +98,7 @@ public class GameService {
                 // Oyun devam ediyor, herhangi bir işlem yapılmasına gerek yok
             }
 
-            // todo: duzenlenecek
+            // todo: CustomExcp
             default -> throw new IllegalStateException("Unexpected value: " + status);
         }
     }
