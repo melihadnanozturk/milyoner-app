@@ -1,0 +1,21 @@
+package org.maoco.milyoner.gameplay.service;
+
+import org.maoco.milyoner.gameplay.domain.Game;
+import org.maoco.milyoner.gameplay.domain.GamePhase;
+import org.springframework.stereotype.Component;
+
+@Component
+public class LostGameHandler implements GameStateHandler {
+
+    @Override
+    public GamePhase getGameStatus() {
+        return GamePhase.LOST;
+    }
+
+    @Override
+    public Game execute(Game game){
+         game.setGameId(game.getGameId());
+         game.setPlayerId(game.getPlayerId());
+         return game;
+    }
+}

@@ -27,12 +27,14 @@ public class InsQuestionService {
                 .answers(question.getAnswers().stream().map(answer -> InsAnswerResponse.builder()
                         .answerId(answer.getId())
                         .answerText(answer.getAnswerText())
+                        .isCorrect(answer.getIsCorrect())
+                        .isActive(answer.getIsActivate())
                         .build()).toList())
                 .build();
     }
 
     public InsAnswerResponse handleAnswer(Long answerId, Long questionId) {
-        AnswerEntity answerEntity = queryService.handleAnswer(answerId, questionId);
+        AnswerEntity answerEntity = queryService.handleAnswer(questionId, answerId);
         return InsAnswerResponse.builder()
                 .isCorrect(answerEntity.getIsCorrect())
                 .answerId(answerEntity.getId())

@@ -23,6 +23,7 @@ public class Question {
                         .id(answer.getAnswerId())
                         .answerText(answer.getAnswerText())
                         .isCorrect(answer.getIsCorrect())
+                        .isActivate(answer.getIsActive())
                         .build()).toList())
                 .build();
     }

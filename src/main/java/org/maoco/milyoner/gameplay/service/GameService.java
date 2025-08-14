@@ -2,32 +2,24 @@ package org.maoco.milyoner.gameplay.service;
 
 import com.google.common.hash.Hashing;
 import lombok.RequiredArgsConstructor;
-import org.maoco.milyoner.common.exception.AnswerException;
-import org.maoco.milyoner.common.exception.NotFoundException;
+import org.maoco.milyoner.gameplay.domain.Game;
+import org.maoco.milyoner.gameplay.domain.GamePhase;
 import org.maoco.milyoner.gameplay.web.dto.request.GameQuestionAnswerRequest;
 import org.maoco.milyoner.gameplay.web.dto.request.GameQuestionQueryRequest;
+import org.maoco.milyoner.gameplay.web.dto.request.GameRequest;
 import org.maoco.milyoner.gameplay.web.dto.request.StartGameRequest;
-import org.maoco.milyoner.gameplay.domain.Answer;
-import org.maoco.milyoner.gameplay.domain.Game;
-import org.maoco.milyoner.gameplay.domain.GameStatus;
-import org.maoco.milyoner.gameplay.domain.Question;
 import org.maoco.milyoner.question.web.controller.port_in.service.InsQuestionService;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class GameService {
 
+    private final GameStateFactory factory;
     private final InsQuestionService insQuestionService;
-
-    private final int WRONG_ANSWER_LIMITS = 3;
 
     public Game startGame(StartGameRequest request) {
 
@@ -41,80 +33,50 @@ public class GameService {
         return Game.builder()
                 .playerId(hashedPlayerId)
                 .gameId(hashedGameId)
-                .gameStatus(GameStatus.START_GAME)
+                .gamePhase(GamePhase.START_GAME)
                 .build();
     }
 
+    //todo: burada status kontrolu yapmaya gerek yok
+    //todo: method ismi handleAction olarak değiştirebiliriz
+    //todo: eğer hala tüm işlemler için ayrı ayrı endpoint oluşturulacaksa, service özelleştirikip, ilgili handler'a gidilmesi sağlanabilir
+    public Game getQuestion(GameQuestionQueryRequest request) {
+        this.checkGameStatus(request.getGamePhase());
 
-    //TODO : Burada paket'e özel olan bir domaine çevirip, buradan api ye cevap dönmesi gerekir.
-    //TODO : Level set edilir mi ?.
-    public Question getQuestion(GameQuestionQueryRequest request) {
-        this.checkGameStatus(request);
+        Game game = this.buildGameFromRequest(request);
 
-        var data = insQuestionService.getQuestion(request.getQuestionLevel());
-
-        Question question = Question.of(data);
-
-        List<Answer> answers = question.getAnswers();
-
-        List<Answer> activateAnswers = answers.stream().filter(Answer::getIsActivate).toList();
-
-        /*todo : AI'a sor => Veriler db de yer alıyor, dışarıdan yanlış bir bilgi eklenmesi söz konus olmaza (@Valid).
-         *  DBden gelen bilgileri yine de kontrol etmek gerekir mi ? Alttaki gibi kontrol sağlamak gerekir mi ?  */
-        List<Answer> correctAnswer = activateAnswers.stream().filter(Answer::getIsCorrect)
-                .findFirst()
-                .map(List::of)
-                //todo : new exception
-                .orElseThrow(() -> new NotFoundException("There is no correct answer in question with level: " + request.getQuestionLevel()));
-
-        List<Answer> wrongAnswers = activateAnswers.stream()
-                .filter(answer -> !answer.getIsCorrect())
-                .collect(Collectors.collectingAndThen(Collectors.toList(), list -> {
-                            if (list.size() < WRONG_ANSWER_LIMITS) {
-                                new AnswerException("There is not enough wrong answer in question with questionId: " + question.getQuestionId());
-                            }
-                            Collections.shuffle(list);
-                            return list.stream().limit(WRONG_ANSWER_LIMITS).collect(Collectors.toList());
-                        }
-                ));
-
-        List finalAnswers = new ArrayList();
-        finalAnswers.addAll(correctAnswer);
-        finalAnswers.addAll(wrongAnswers);
-
-        question.setAnswers(finalAnswers);
-
-        return Question.of(data);
+        var handler = factory.getHandler(game.getGamePhase());
+        return handler.execute(game);
     }
 
-    //todo: cevaplar burada geldikçe, her defasında oyun statusunu kontrol etmem gerekir mi ?
     public Game checkAnswer(GameQuestionAnswerRequest request) {
-        var data = insQuestionService.handleAnswer(request.getQuestionId(), request.getAnswerId());
+        Game game = this.buildGameFromRequest(request);
+        var data = insQuestionService.handleAnswer(request.getAnswerId(), request.getQuestionId());
 
 
         if (!data.getIsCorrect().equals(true)) {
-            request.setGameStatus(GameStatus.LOSE);
+            game.updateGameState(GamePhase.LOST);
+            return factory.getHandler(game.getGamePhase()).execute(game);
         }
 
-        return this.returnGameResponse(request);
+        if (game.getQuestionLevel() == 10L) {
+            game.updateGameState(GamePhase.WON);
+            return factory.getHandler(game.getGamePhase()).execute(game);
+        }
+
+        game.setQuestionLevel(game.getQuestionLevel() + 1);
+
+
+        return game;
     }
 
-    private Game returnGameResponse(GameQuestionAnswerRequest request) {
-        if (request.getGameStatus().equals(GameStatus.IN_PROGRESS)) {
-            return Game.builder()
-                    .gameId(request.getGameId())
-                    .playerId(request.getPlayerId())
-                    .gameStatus(request.getGameStatus())
-                    .questionLevel(request.getQuestionLevel() + 1L)
-                    .build();
-        } else {
-            return Game.builder()
-                    .gameId(request.getGameId())
-                    .playerId(request.getPlayerId())
-                    .gameStatus(request.getGameStatus())
-                    .questionLevel(request.getQuestionLevel())
-                    .build();
-        }
+    private Game buildGameFromRequest(GameRequest request) {
+        return Game.builder()
+                .playerId(request.getPlayerId())
+                .gameId(request.getGameId())
+                .questionLevel(request.getQuestionLevel())
+                .gamePhase(request.getGamePhase())
+                .build();
     }
 
     private String convertStringToHash(String string) {
@@ -126,21 +88,19 @@ public class GameService {
     //TODO : WON ve QUIT durumunu da burada yazabilirsin :)
     //TODO : WON ve QUIT farklı endpoint üzerinden de kontrol edebilirsin
     //TODO : Burada hashKontrolu de yapılması gerekebilir
-    private void checkGameStatus(GameQuestionQueryRequest request) {
-        var status = request.getGameStatus();
+    private void checkGameStatus(GamePhase status) {
 
         switch (status) {
-            case START_GAME -> {
-                request.setQuestionLevel(1L);
-                request.setGameStatus(GameStatus.IN_PROGRESS);
-            }
-            case IN_PROGRESS -> {
-                // Oyun devam ediyor, herhangi bir işlem yapılmasına gerek yok
-            }
+            case WON -> throw new IllegalStateException("Unexpected value: " + status);
 
-            // todo: CustomExcp
-            default -> throw new IllegalStateException("Unexpected value: " + status);
+            case QUIT -> throw new IllegalStateException("Unexpected value: " + status);
+
+            case LOST -> throw new IllegalStateException("Unexpected value: " + status);
+            default -> {//null
+            }
         }
     }
+
+
 }
 
