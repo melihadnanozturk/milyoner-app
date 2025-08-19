@@ -13,4 +13,6 @@ public interface AnswerRepository extends PagingAndSortingRepository<AnswerEntit
 
     @Query("SELECT a FROM AnswerEntity a WHERE a.id =:answerId AND a.question.id =:questionId AND a.isActivate = :isActivate")
     Optional<AnswerEntity> findByIdAndQuestionIdAndIsActivate(@Param("answerId") Long answerId,@Param("questionId") Long questionId, Boolean isActivate);
+
+    Long countByQuestionIdAndIsActivate(Long questionId, Boolean isActivate);
 }

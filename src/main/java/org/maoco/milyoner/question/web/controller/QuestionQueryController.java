@@ -5,6 +5,7 @@ import org.maoco.milyoner.common.ApiResponse;
 import org.maoco.milyoner.question.data.entity.QuestionEntity;
 import org.maoco.milyoner.question.domain.Question;
 import org.maoco.milyoner.question.service.QuestionQueryService;
+import org.maoco.milyoner.question.web.dto.request.QuestionQueryRequest;
 import org.maoco.milyoner.question.web.dto.response.AnswerResponse;
 import org.maoco.milyoner.question.web.dto.response.QuestionResponse;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Collection;
 import java.util.List;
 
 @RestController
@@ -22,10 +24,10 @@ public class QuestionQueryController {
     private final QuestionQueryService operationService;
 
     @GetMapping
-    public ApiResponse<List<QuestionResponse>> getAllQuestions() {
-        List<QuestionEntity> entities = operationService.getAllQuestions().stream().toList();
+    public ApiResponse<List<QuestionResponse>> getAllQuestions(QuestionQueryRequest request) {
+        Collection<Question> questions = operationService.getAllQuestions(request);
 
-        List<QuestionResponse> data = entities.stream()
+        List<QuestionResponse> data = questions.stream()
                 .map(entity -> QuestionResponse.builder()
                         .questionId(entity.getId())
                         .questionText(entity.getQuestionText())

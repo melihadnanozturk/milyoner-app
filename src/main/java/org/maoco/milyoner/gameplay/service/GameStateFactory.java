@@ -1,6 +1,8 @@
 package org.maoco.milyoner.gameplay.service;
 
 import org.maoco.milyoner.gameplay.domain.GamePhase;
+import org.maoco.milyoner.gameplay.service.handler.GameStateHandler;
+import org.maoco.milyoner.gameplay.service.handler.LostGameHandler;
 import org.springframework.stereotype.Component;
 
 import java.util.EnumMap;

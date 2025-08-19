@@ -1,13 +1,20 @@
 package org.maoco.milyoner.question.data.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.maoco.milyoner.question.domain.Question;
 
 import java.util.List;
 
 @Entity
 @Table(name = "questions")
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class QuestionEntity {
 
     @Id
@@ -20,8 +27,19 @@ public class QuestionEntity {
     @Column(name = "question_level")
     private Long questionLevel;
 
-    @OneToMany(cascade = CascadeType.ALL,mappedBy = "question")
+    @Column(name = "isActivate")
+    private Boolean isActivate;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "question")
     private List<AnswerEntity> answers;
+
+    public static QuestionEntity of(Question question) {
+        return QuestionEntity.builder()
+                .id(question.getId())
+                .questionText(question.getQuestionText())
+                .questionLevel(question.getQuestionLevel())
+                .build();
+    }
 }
 
 //todo: Sorularda aktif pasif field ekleyebilirsin

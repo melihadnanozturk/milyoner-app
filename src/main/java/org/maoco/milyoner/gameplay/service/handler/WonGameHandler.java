@@ -1,4 +1,4 @@
-package org.maoco.milyoner.gameplay.service;
+package org.maoco.milyoner.gameplay.service.handler;
 
 import org.maoco.milyoner.gameplay.domain.Game;
 import org.maoco.milyoner.gameplay.domain.GamePhase;

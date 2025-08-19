@@ -7,6 +7,11 @@ import org.maoco.milyoner.question.data.entity.QuestionEntity;
 import org.maoco.milyoner.question.data.repository.AnswerRepository;
 import org.maoco.milyoner.question.data.repository.QuestionRepository;
 import org.maoco.milyoner.question.domain.Question;
+import org.maoco.milyoner.question.service.spec.QuestionSpecification;
+import org.maoco.milyoner.question.web.dto.request.QuestionQueryRequest;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -19,10 +24,14 @@ public class QuestionQueryService {
     private final QuestionRepository questionRepository;
     private final AnswerRepository answerRepository;
 
-    public Collection<QuestionEntity> getAllQuestions() {
-        /*return questionRepository.findAll();*/
+    public Collection<Question> getAllQuestions(QuestionQueryRequest request) {
 
-        return List.of();
+        Specification<QuestionEntity> spec = QuestionSpecification.getQuestionsByQuestionLevel(request.getQuestionLevel());
+        Pageable pageable = PageRequest.of(request.getPageNumber(), request.getPageSize());
+
+        List<QuestionEntity> content = questionRepository.findAll(spec, pageable).getContent();
+        return content.stream().map(Question::of).toList();
+
     }
 
     public Question getQuestionById(Long id) {

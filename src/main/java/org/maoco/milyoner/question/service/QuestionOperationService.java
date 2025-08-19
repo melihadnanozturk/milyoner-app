@@ -2,6 +2,7 @@ package org.maoco.milyoner.question.service;
 
 import lombok.RequiredArgsConstructor;
 import org.maoco.milyoner.common.exception.NotFoundException;
+import org.maoco.milyoner.question.domain.Question;
 import org.maoco.milyoner.question.web.dto.request.CreateAnswerQuestion;
 import org.maoco.milyoner.question.web.dto.request.CreateNewQuestionRequest;
 import org.maoco.milyoner.question.web.dto.request.UpdateQuestionRequest;
@@ -19,12 +20,7 @@ public class QuestionOperationService {
 
     private final QuestionRepository questionRepository;
 
-    private void checkTrueAnswerNumber(List<CreateAnswerQuestion> answers) {
-        List<CreateAnswerQuestion> trueAnswers = answers.stream().filter(q -> q.getIsCorrect()).toList();
-        if (trueAnswers.size() != 1) throw new CreateAnswerException();
-    }
-
-    public QuestionEntity createNewQuestion(CreateNewQuestionRequest request) {
+    public Question createNewQuestion(CreateNewQuestionRequest request) {
         this.checkTrueAnswerNumber(request.getAnswers());
 
         QuestionEntity entity = new QuestionEntity();
@@ -39,16 +35,27 @@ public class QuestionOperationService {
 
         entity.setAnswers(answerEntities);
 
-        return questionRepository.save(entity);
+        QuestionEntity saved = questionRepository.save(entity);
+
+        return Question.of(saved);
     }
 
-    public QuestionEntity updateQuestion(UpdateQuestionRequest request) {
+    public Question updateQuestion(UpdateQuestionRequest request) {
         QuestionEntity entity = questionRepository.findById(request.getQuestionId()).orElseThrow(() -> new NotFoundException("Question not found"));
 
         entity.setQuestionText(request.getQuestionText());
         entity.setQuestionLevel(request.getQuestionLevel());
 
-        return questionRepository.save(entity);
+        QuestionEntity saved = questionRepository.save(entity);
+        return Question.of(saved);
+    }
+
+    public void setDeactivate(Long id){
+        QuestionEntity entity = questionRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Question not found with id: " + id));
+
+        entity.setIsActivate(false);
+        questionRepository.save(entity);
     }
 
     public String deleteQuestion(Long questionId) {
@@ -56,5 +63,10 @@ public class QuestionOperationService {
 
         questionRepository.deleteById(questionId);
         return String.format("Question with id %d deleted", questionId);
+    }
+
+    private void checkTrueAnswerNumber(List<CreateAnswerQuestion> answers) {
+        List<CreateAnswerQuestion> trueAnswers = answers.stream().filter(q -> q.getIsCorrect()).toList();
+        if (trueAnswers.size() != 1) throw new CreateAnswerException();
     }
 }

@@ -2,6 +2,7 @@ package org.maoco.milyoner.question.data.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -10,6 +11,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class AnswerEntity {
 
     @Id
@@ -29,7 +31,7 @@ public class AnswerEntity {
     @JoinColumn(name = "question_id")
     QuestionEntity question;
 
-    public AnswerEntity(String answerText, Boolean isCorrect,QuestionEntity entity) {
+    public AnswerEntity(String answerText, Boolean isCorrect, QuestionEntity entity) {
         this.answerText = answerText;
         this.isCorrect = isCorrect;
         this.question = entity;

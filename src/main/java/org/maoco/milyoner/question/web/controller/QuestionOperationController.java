@@ -3,13 +3,13 @@ package org.maoco.milyoner.question.web.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.maoco.milyoner.common.ApiResponse;
+import org.maoco.milyoner.question.domain.Question;
+import org.maoco.milyoner.question.service.QuestionOperationService;
 import org.maoco.milyoner.question.web.dto.request.CreateNewQuestionRequest;
 import org.maoco.milyoner.question.web.dto.request.UpdateQuestionRequest;
 import org.maoco.milyoner.question.web.dto.response.AnswerResponse;
 import org.maoco.milyoner.question.web.dto.response.QuestionResponse;
 import org.maoco.milyoner.question.web.dto.response.UpdateQuestionResponse;
-import org.maoco.milyoner.question.data.entity.QuestionEntity;
-import org.maoco.milyoner.question.service.QuestionOperationService;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -21,13 +21,13 @@ public class QuestionOperationController {
 
     @PostMapping
     public ApiResponse<QuestionResponse> createNewQuestion(@RequestBody @Valid CreateNewQuestionRequest request) {
-        QuestionEntity entity = operationService.createNewQuestion(request);
+        Question question = operationService.createNewQuestion(request);
 
         QuestionResponse data = QuestionResponse.builder()
-                .questionId(entity.getId())
-                .questionText(entity.getQuestionText())
-                .questionLevel(entity.getQuestionLevel())
-                .answers(entity.getAnswers().stream().map(answer -> AnswerResponse.builder()
+                .questionId(question.getId())
+                .questionText(question.getQuestionText())
+                .questionLevel(question.getQuestionLevel())
+                .answers(question.getAnswers().stream().map(answer -> AnswerResponse.builder()
                         .answerId(answer.getId())
                         .isCorrect(answer.getIsCorrect())
                         .isActivate(answer.getIsActivate())
@@ -41,12 +41,12 @@ public class QuestionOperationController {
     @PutMapping("/{questionId}")
     public ApiResponse<UpdateQuestionResponse> updateQuestion(@PathVariable Long questionId, @Valid @RequestBody UpdateQuestionRequest request) {
         request.setQuestionId(questionId);
-        QuestionEntity response = operationService.updateQuestion(request);
+        Question question = operationService.updateQuestion(request);
 
         UpdateQuestionResponse data = UpdateQuestionResponse.builder()
-                .questionId(response.getId())
-                .questionText(response.getQuestionText())
-                .questionLevel(response.getQuestionLevel())
+                .questionId(question.getId())
+                .questionText(question.getQuestionText())
+                .questionLevel(question.getQuestionLevel())
                 .build();
 
         return ApiResponse.success(data);
