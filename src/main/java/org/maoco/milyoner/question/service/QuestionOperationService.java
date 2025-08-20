@@ -45,6 +45,7 @@ public class QuestionOperationService {
 
         entity.setQuestionText(request.getQuestionText());
         entity.setQuestionLevel(request.getQuestionLevel());
+        entity.setIsActivate(request.getIsActivate());
 
         QuestionEntity saved = questionRepository.save(entity);
         return Question.of(saved);

@@ -18,8 +18,11 @@ public class UpdateQuestionRequest {
     @NotBlank(message = "Question Text cannot be blank")
     private String questionText;
 
-    @NotNull(message = "Question Level cannot be blank")
+    @NotNull(message = "Question Level cannot be null")
     @Max(value = 10, message = "Question Level must be smaller than 10")
     @Min(value = 1, message = "Question Level must be greater than 10")
     private Long questionLevel;
+
+    @NotNull(message = "Is Activate cannot be null")
+    private Boolean isActivate;
 }
