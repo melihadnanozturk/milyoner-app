@@ -41,19 +41,18 @@ public class QuestionQueryService {
         return Question.of(entity);
     }
 
+    //for gamePlay
     public Question getQuestionByLevel(Long level) {
-        return this.findQuestionByLevel(level);
+        QuestionEntity entity = questionRepository.findByQuestionLevel(level, true)
+                .orElseThrow(() -> new NotFoundException("Question not found with level: " + level));
+
+        return Question.of(entity);
     }
 
+    //for gamePlay
     public AnswerEntity handleAnswer(Long questionId, Long answerId) {
 
         return answerRepository.findByIdAndQuestionIdAndIsActivate(answerId, questionId, true)
                 .orElseThrow(() -> new NotFoundException("Answer not found with questionId :" + questionId + " and answerId: " + answerId));
-    }
-
-    private Question findQuestionByLevel(Long level) {
-        QuestionEntity entity = questionRepository.findByQuestionLevel(level)
-                .orElseThrow(() -> new NotFoundException("Question not found with level: " + level));
-        return Question.of(entity);
     }
 }

@@ -10,6 +10,6 @@ import java.util.Optional;
 
 public interface QuestionRepository extends JpaRepository<QuestionEntity, Long>, JpaSpecificationExecutor<QuestionEntity> {
 
-    @Query(value = "SELECT q FROM QuestionEntity q WHERE q.questionLevel = :level ORDER BY RANDOM() LIMIT 1")
-    Optional<QuestionEntity> findByQuestionLevel(@Param("level") Long level);
+    @Query(value = "SELECT q FROM QuestionEntity q WHERE q.questionLevel = :level AND  q.isActivate = :activate ORDER BY RANDOM() LIMIT 1")
+    Optional<QuestionEntity> findByQuestionLevel(@Param("level") Long level, @Param("activate") Boolean activate);
 }

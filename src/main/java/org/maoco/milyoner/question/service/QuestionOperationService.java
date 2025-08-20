@@ -1,15 +1,16 @@
 package org.maoco.milyoner.question.service;
 
 import lombok.RequiredArgsConstructor;
+import org.maoco.milyoner.common.exception.AnswerException;
 import org.maoco.milyoner.common.exception.NotFoundException;
-import org.maoco.milyoner.question.domain.Question;
-import org.maoco.milyoner.question.web.dto.request.CreateAnswerQuestion;
-import org.maoco.milyoner.question.web.dto.request.CreateNewQuestionRequest;
-import org.maoco.milyoner.question.web.dto.request.UpdateQuestionRequest;
 import org.maoco.milyoner.question.data.entity.AnswerEntity;
 import org.maoco.milyoner.question.data.entity.QuestionEntity;
 import org.maoco.milyoner.question.data.repository.QuestionRepository;
+import org.maoco.milyoner.question.domain.Question;
 import org.maoco.milyoner.question.service.exception.CreateAnswerException;
+import org.maoco.milyoner.question.web.dto.request.CreateAnswerQuestion;
+import org.maoco.milyoner.question.web.dto.request.CreateNewQuestionRequest;
+import org.maoco.milyoner.question.web.dto.request.UpdateQuestionRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -43,6 +44,8 @@ public class QuestionOperationService {
     public Question updateQuestion(UpdateQuestionRequest request) {
         QuestionEntity entity = questionRepository.findById(request.getQuestionId()).orElseThrow(() -> new NotFoundException("Question not found"));
 
+        this.checkQuestion(request, entity);
+
         entity.setQuestionText(request.getQuestionText());
         entity.setQuestionLevel(request.getQuestionLevel());
         entity.setIsActivate(request.getIsActivate());
@@ -51,7 +54,7 @@ public class QuestionOperationService {
         return Question.of(saved);
     }
 
-    public void setDeactivate(Long id){
+    public void setDeactivate(Long id) {
         QuestionEntity entity = questionRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Question not found with id: " + id));
 
@@ -69,5 +72,23 @@ public class QuestionOperationService {
     private void checkTrueAnswerNumber(List<CreateAnswerQuestion> answers) {
         List<CreateAnswerQuestion> trueAnswers = answers.stream().filter(q -> q.getIsCorrect()).toList();
         if (trueAnswers.size() != 1) throw new CreateAnswerException();
+    }
+
+    private void checkQuestion(UpdateQuestionRequest request, QuestionEntity entity) {
+        if (request.getIsActivate() && entity.getIsActivate().equals(false)) {
+            List<AnswerEntity> activateAnswers = entity.getAnswers().stream().filter(AnswerEntity::getIsActivate).toList();
+
+            int activeAnswerNumber = activateAnswers.size();
+            int correctAnswerNumber = activateAnswers.stream().filter(AnswerEntity::getIsCorrect).toList().size();
+
+            if (correctAnswerNumber != 1) {
+                throw new AnswerException("Soruyu aktifleştirirken sorun oldu. Her sorunun sadece bir tane doğru cevabı olmak zorundadır. Lütfen cevapları kontrol edin");
+            }
+
+            if (activeAnswerNumber < 4) {
+                throw new AnswerException("Her sorunun sadece minimum 4 tane cevabı olmak zorundadır. Lütfen cevap sayıları kontrol edin");
+            }
+        }
+
     }
 }

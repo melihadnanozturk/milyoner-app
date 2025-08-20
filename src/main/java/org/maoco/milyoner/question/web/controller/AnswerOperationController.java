@@ -17,7 +17,7 @@ public class AnswerOperationController {
     private final AnswerOperationService service;
 
     @PostMapping
-    public ApiResponse<AnswerResponse> createNewAnswer(CreateNewAnswerRequest request) {
+    public ApiResponse<AnswerResponse> createNewAnswer(@RequestBody CreateNewAnswerRequest request) {
         Answer newAnswer = service.createNewAnswer(request);
 
         AnswerResponse response = AnswerResponse.builder()

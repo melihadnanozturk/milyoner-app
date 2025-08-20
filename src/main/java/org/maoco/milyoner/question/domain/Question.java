@@ -16,6 +16,7 @@ public class Question {
     private Long id;
     private String questionText;
     private Long questionLevel;
+    private Boolean isActivate; // ??
     private List<Answer> answers;
 
     public static Question of(QuestionEntity entity) {
@@ -23,6 +24,7 @@ public class Question {
                 .id(entity.getId())
                 .questionText(entity.getQuestionText())
                 .questionLevel(entity.getQuestionLevel())
+                .isActivate(entity.getIsActivate())
                 .answers(entity.getAnswers().stream()
                         .map(answer -> Answer.builder()
                                 .id(answer.getId())

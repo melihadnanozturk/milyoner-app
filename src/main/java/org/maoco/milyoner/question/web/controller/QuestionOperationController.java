@@ -47,6 +47,7 @@ public class QuestionOperationController {
                 .questionId(question.getId())
                 .questionText(question.getQuestionText())
                 .questionLevel(question.getQuestionLevel())
+                .isActivate(question.getIsActivate())
                 .build();
 
         return ApiResponse.success(data);

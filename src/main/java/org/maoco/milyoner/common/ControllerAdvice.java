@@ -1,6 +1,7 @@
 package org.maoco.milyoner.common;
 
 
+import org.maoco.milyoner.common.exception.AnswerException;
 import org.maoco.milyoner.common.exception.NotFoundException;
 import org.maoco.milyoner.question.service.exception.CreateAnswerException;
 import org.springframework.http.HttpStatus;
@@ -16,16 +17,23 @@ import java.util.List;
 @RestControllerAdvice
 public class ControllerAdvice {
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(NotFoundException.class)
     public ApiResponse<String> handleNotFoundException(NotFoundException e) {
 
         return ApiResponse.failed(e.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(CreateAnswerException.class)
     public ApiResponse<String> handleCreateAnswerException(CreateAnswerException e) {
+
+        return ApiResponse.failed(e.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(AnswerException.class)
+    public ApiResponse<String> handleAnswerException(AnswerException e) {
 
         return ApiResponse.failed(e.getMessage(), HttpStatus.BAD_REQUEST);
     }
