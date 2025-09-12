@@ -30,7 +30,7 @@ public class AnswerOperationController {
         return ApiResponse.success(response);
     }
 
-    @DeleteMapping
+    @DeleteMapping("/{id}")
     public ApiResponse<String> deleteAnswer(@PathVariable Long id) {
         String response = service.deleteAnswer(id);
 

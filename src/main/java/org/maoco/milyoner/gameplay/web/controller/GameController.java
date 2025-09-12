@@ -3,7 +3,6 @@ package org.maoco.milyoner.gameplay.web.controller;
 import jakarta.validation.Valid;
 import org.maoco.milyoner.common.ApiResponse;
 import org.maoco.milyoner.gameplay.domain.Game;
-import org.maoco.milyoner.gameplay.domain.Question;
 import org.maoco.milyoner.gameplay.service.GameService;
 import org.maoco.milyoner.gameplay.web.dto.request.GameActionRequest;
 import org.maoco.milyoner.gameplay.web.dto.request.GameQuestionAnswerRequest;
@@ -41,10 +40,10 @@ public class GameController {
 
         GameQuestionQueryResponse data = GameQuestionQueryResponse.builder()
                 .game(GameResponse.builder()
-                        .gamePhase(request.getGamePhase())
-                        .gameId(request.getGameId())
-                        .playerId(request.getPlayerId())
-                        .questionLevel(request.getQuestionLevel())
+                        .gamePhase(game.getGamePhase())
+                        .gameId(game.getGameId())
+                        .playerId(game.getPlayerId())
+                        .questionLevel(game.getQuestionLevel())
                         .build())
                 .question(QuestionResponse.builder()
                         .questionId(game.getQuestion().getQuestionId())
@@ -63,7 +62,7 @@ public class GameController {
     //TODO : SetQuestion And CheckAnswer, NextLevel-Won || Lose
     @PostMapping("/questions")
     public ApiResponse<GameResponse> setAnswer(@RequestBody GameQuestionAnswerRequest request) {
-        
+
         Game game = service.checkAnswer(request);
 
         return ApiResponse.success(GameResponse.builder()

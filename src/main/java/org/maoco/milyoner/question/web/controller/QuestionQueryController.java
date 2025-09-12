@@ -29,6 +29,7 @@ public class QuestionQueryController {
                 .map(entity -> QuestionResponse.builder()
                         .questionId(entity.getId())
                         .questionText(entity.getQuestionText())
+                        .questionLevel(entity.getQuestionLevel())
                         .answers(entity.getAnswers().stream()
                                 .map(answer -> AnswerResponse.builder()
                                         .answerId(answer.getId())
