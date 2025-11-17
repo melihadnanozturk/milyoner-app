@@ -14,11 +14,11 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AnswerOperationController {
 
-    private final AnswerOperationService service;
+    private final AnswerOperationService answerOperationService;
 
     @PostMapping
     public ApiResponse<AnswerResponse> createNewAnswer(@RequestBody CreateNewAnswerRequest request) {
-        Answer newAnswer = service.createNewAnswer(request);
+        Answer newAnswer = answerOperationService.createNewAnswer(request);
 
         AnswerResponse response = AnswerResponse.builder()
                 .answerId(newAnswer.getId())
@@ -32,7 +32,7 @@ public class AnswerOperationController {
 
     @DeleteMapping("/{id}")
     public ApiResponse<String> deleteAnswer(@PathVariable Long id) {
-        String response = service.deleteAnswer(id);
+        String response = answerOperationService.deleteAnswer(id);
 
         return ApiResponse.success(response);
     }

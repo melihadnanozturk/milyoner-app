@@ -3,7 +3,7 @@ package org.maoco.milyoner.question.web.dto.request;
 import lombok.Getter;
 
 @Getter
-public class CreateAnswerQuestion {
+public class CreateQuestionAnswer {
 
     private String answerText;
 

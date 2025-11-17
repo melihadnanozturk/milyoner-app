@@ -12,7 +12,7 @@ public class CreateNewQuestionRequest {
     private String questionText;
 
     @Size(min = 4, max = 10, message = "Answer size must be between 4 and 10")
-    private List<CreateAnswerQuestion> answers;
+    private List<CreateQuestionAnswer> answers;
 
     @NotNull(message = "Question Level cannot be blank")
     @Min(value = 1, message = "Question Level must be greater than 0")

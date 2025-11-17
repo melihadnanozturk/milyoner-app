@@ -8,7 +8,7 @@ import org.maoco.milyoner.question.data.entity.QuestionEntity;
 import org.maoco.milyoner.question.data.repository.QuestionRepository;
 import org.maoco.milyoner.question.domain.Question;
 import org.maoco.milyoner.question.service.exception.CreateAnswerException;
-import org.maoco.milyoner.question.web.dto.request.CreateAnswerQuestion;
+import org.maoco.milyoner.question.web.dto.request.CreateQuestionAnswer;
 import org.maoco.milyoner.question.web.dto.request.CreateNewQuestionRequest;
 import org.maoco.milyoner.question.web.dto.request.UpdateQuestionRequest;
 import org.springframework.stereotype.Service;
@@ -69,8 +69,8 @@ public class QuestionOperationService {
         return String.format("Question with id %d deleted", questionId);
     }
 
-    private void checkTrueAnswerNumber(List<CreateAnswerQuestion> answers) {
-        List<CreateAnswerQuestion> trueAnswers = answers.stream().filter(q -> q.getIsCorrect()).toList();
+    private void checkTrueAnswerNumber(List<CreateQuestionAnswer> answers) {
+        List<CreateQuestionAnswer> trueAnswers = answers.stream().filter(CreateQuestionAnswer::getIsCorrect).toList();
         if (trueAnswers.size() != 1) throw new CreateAnswerException();
     }
 
@@ -86,7 +86,7 @@ public class QuestionOperationService {
             }
 
             if (activeAnswerNumber < 4) {
-                throw new AnswerException("Her sorunun sadece minimum 4 tane cevabı olmak zorundadır. Lütfen cevap sayıları kontrol edin");
+                throw new AnswerException("Her sorunun minimum 4 tane cevabı olmak zorundadır. Lütfen cevap sayıları kontrol edin");
             }
         }
 
