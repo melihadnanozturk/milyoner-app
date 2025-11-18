@@ -35,6 +35,7 @@ public class QuestionOperationService {
                 .toList();
 
         entity.setAnswers(answerEntities);
+        entity.setIsActivate(true);
 
         QuestionEntity saved = questionRepository.save(entity);
 

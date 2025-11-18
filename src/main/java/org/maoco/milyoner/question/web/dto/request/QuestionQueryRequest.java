@@ -9,7 +9,7 @@ public class QuestionQueryRequest {
     private QuestionSorter sorter;
 
     private int pageNumber = 0;
-    private int pageSize = 20;
+    private int pageSize = 2;
 
     private enum QuestionSorter {
         TEXT("questionText"),

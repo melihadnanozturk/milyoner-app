@@ -18,4 +18,6 @@ public class CreateNewQuestionRequest {
     @Min(value = 1, message = "Question Level must be greater than 0")
     @Max(value = 10, message = "Question Level must be smaller than 10")
     private Long questionLevel;
+
+    private Boolean activate = true;
 }

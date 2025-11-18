@@ -5,9 +5,13 @@ spring:
     url: jdbc:postgresql://localhost:5432/milyoner
     username: postgres
     password: postgres
-  jpa:
-    hibernate:
-      ddl-auto: update # todo : will be change
+#  jpa:
+#    hibernate:
+#      ddl-auto: update # todo : will be change
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
