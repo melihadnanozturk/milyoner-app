@@ -1,5 +1,9 @@
 package org.maoco.milyoner.question.web.controller.port_in.service;
 
+import org.maoco.milyoner.gameplay.domain.Game;
+import org.maoco.milyoner.gameplay.domain.GamePhase;
+import org.maoco.milyoner.gameplay.service.handler.GameStateEnum;
+import org.maoco.milyoner.gameplay.web.dto.request.GameQuestionAnswerRequest;
 import org.maoco.milyoner.question.data.entity.AnswerEntity;
 import org.maoco.milyoner.question.domain.Question;
 import org.maoco.milyoner.question.service.QuestionQueryService;
@@ -40,5 +44,25 @@ public class InsQuestionService {
                 .answerId(answerEntity.getId())
                 .answerText(answerEntity.getAnswerText())
                 .build();
+    }
+
+    public Game checkAnswer(GameQuestionAnswerRequest request) {
+        Game game = Game.buildGameFromRequest(request);
+        var data = handleAnswer(request.getAnswerId(), request.getQuestionId());
+
+
+        if (!data.getIsCorrect().equals(true)) {
+            game.updateGameState(GameStateEnum.LOST);
+            return game;
+        }
+
+        if (game.getQuestionLevel() == 10L) {
+            game.updateGameState(GameStateEnum.WON);
+            return game;
+        }
+
+        game.setQuestionLevel(game.getQuestionLevel() + 1);
+
+        return game;
     }
 }

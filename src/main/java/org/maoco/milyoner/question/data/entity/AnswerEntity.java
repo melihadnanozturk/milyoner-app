@@ -7,7 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "answers")
+@Table(name = "answer")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -15,16 +15,16 @@ import lombok.NoArgsConstructor;
 public class AnswerEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "answer_text")
     private String answerText;
 
-    @Column(name = "isCorrect")
+    @Column(name = "is_correct")
     private Boolean isCorrect;
 
-    @Column(name = "isActivate")
+    @Column(name = "is_activate")
     private Boolean isActivate = true; //burada default değer nasıl verebilrim ?
 
     @ManyToOne(fetch = FetchType.LAZY)

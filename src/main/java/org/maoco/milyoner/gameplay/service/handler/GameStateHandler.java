@@ -1,13 +1,16 @@
 package org.maoco.milyoner.gameplay.service.handler;
 
-import org.maoco.milyoner.gameplay.domain.Game;
-import org.maoco.milyoner.gameplay.domain.GamePhase;
 
-public interface GameStateHandler {
+import org.springframework.stereotype.Component;
 
-    GamePhase getGameStatus();
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-    default Game execute(Game game) {
-        return null;
-    }
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@Component
+public @interface GameStateHandler {
+    GameStateEnum value();
 }

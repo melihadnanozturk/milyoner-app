@@ -10,7 +10,7 @@ import org.maoco.milyoner.question.domain.Question;
 import java.util.List;
 
 @Entity
-@Table(name = "questions")
+@Table(name = "question")
 @Data
 @Builder
 @NoArgsConstructor
@@ -18,7 +18,7 @@ import java.util.List;
 public class QuestionEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "question_text")
@@ -27,7 +27,7 @@ public class QuestionEntity {
     @Column(name = "question_level")
     private Long questionLevel;
 
-    @Column(name = "isActivate")
+    @Column(name = "is_activate")
     private Boolean isActivate;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "question")
