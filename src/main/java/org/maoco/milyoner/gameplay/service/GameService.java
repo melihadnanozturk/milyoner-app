@@ -1,5 +1,7 @@
 package org.maoco.milyoner.gameplay.service;
 
+import com.google.common.hash.Hashing;
+import jakarta.validation.Valid;
 import org.maoco.milyoner.common.error.GamePlayError;
 import org.maoco.milyoner.common.exception.AnswerException;
 import org.maoco.milyoner.common.exception.MilyonerException;
@@ -7,12 +9,21 @@ import org.maoco.milyoner.common.exception.NotFoundException;
 import org.maoco.milyoner.gameplay.domain.Answer;
 import org.maoco.milyoner.gameplay.domain.Game;
 import org.maoco.milyoner.gameplay.domain.Question;
+import org.maoco.milyoner.gameplay.service.handler.GameStateEnum;
+import org.maoco.milyoner.gameplay.web.dto.request.GameQuestionAnswerRequest;
+import org.maoco.milyoner.gameplay.web.dto.request.GameQuestionQueryRequest;
+import org.maoco.milyoner.gameplay.web.dto.request.GameRequest;
+import org.maoco.milyoner.gameplay.web.dto.request.StartGameRequest;
+import org.maoco.milyoner.question.data.entity.AnswerEntity;
+import org.maoco.milyoner.question.web.controller.port_in.dto.response.InsAnswerResponse;
 import org.maoco.milyoner.question.web.controller.port_in.service.InsQuestionService;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,14 +38,74 @@ public class GameService {
         this.insQuestionService = insQuestionService;
     }
 
+    public Game checkAnswer(GameQuestionAnswerRequest request) {
+        Game game = Game.buildGameFromRequest(request);
+        var data = handleAnswer(request.getAnswerId(), request.getQuestionId());
 
-    public Game inProgress(Game game) {
+
+        if (!data.getIsCorrect().equals(true)) {
+            game.updateGameState(GameStateEnum.LOST);
+        }
+
+        if (game.getQuestionLevel() == 10L) {
+            game.updateGameState(GameStateEnum.WON);
+        }
+
+        game.setQuestionLevel(game.getQuestionLevel() + 1);
+
+        return game;
+    }
+
+    private InsAnswerResponse handleAnswer(Long answerId, Long questionId) {
+//        AnswerEntity answerEntity = queryService.handleAnswer(questionId, answerId);
+        AnswerEntity answerEntity = null;
+        return InsAnswerResponse.builder()
+                .isCorrect(answerEntity.getIsCorrect())
+                .answerId(answerEntity.getId())
+                .answerText(answerEntity.getAnswerText())
+                .build();
+    }
+
+    public Game won(Game game) {
+        return Game.builder()
+                .gameId("deneme")
+                .gameState(GameStateEnum.WON)
+                .playerId("PLAYER_ID")
+                .questionLevel(10L)
+                .build();
+    }
+
+    public Game lost(Game game) {
+        throw new MilyonerException(GamePlayError.WRONG_ANSWER, "KAYBETTIN");
+
+    }
+
+    public Game quit(Game game) {
+        throw new MilyonerException(GamePlayError.WRONG_ANSWER, "CIKTIN, DAHA KARPUZ KESECEKTİK ;(");
+
+    }
+
+    public Game startGame(@Valid StartGameRequest request) {
+        String gameId = UUID.randomUUID().toString();
+        String playerId = gameId + request.getUsername();
+
+        String hashedGameId = this.convertStringToHash(gameId);
+        String hashedPlayerId = this.convertStringToHash(playerId);
+
+        return Game.builder()
+                .playerId(hashedPlayerId)
+                .gameId(hashedGameId)
+                .gameState(GameStateEnum.START_GAME)
+                .questionLevel(1L)
+                .build();
+    }
+
+    public Game getQuestions(GameQuestionQueryRequest request) {
+        Game game = Game.buildGameFromRequest(request);
         var data = insQuestionService.getQuestion(game.getQuestionLevel());
 
         Question question = Question.of(data);
-
         List<Answer> answers = question.getAnswers();
-
         List<Answer> activateAnswers = answers.stream().filter(Answer::getIsActivate)
                 .collect(Collectors.collectingAndThen(Collectors.toList(),
                         list -> {
@@ -67,7 +138,6 @@ public class GameService {
         finalAnswers.addAll(correctAnswer);
         finalAnswers.addAll(wrongAnswers);
         Collections.shuffle(finalAnswers);
-
         question.setAnswers(finalAnswers);
 
         game.setQuestion(question);
@@ -75,17 +145,13 @@ public class GameService {
         return game;
     }
 
-    public Game won(Game game) {
-        throw new MilyonerException(GamePlayError.WRONG_ANSWER, "OYUNUU KAZANDIN");
+    public Game getResult(GameRequest request) {
+        return null;
     }
 
-    public Game lost(Game game) {
-        throw new MilyonerException(GamePlayError.WRONG_ANSWER, "KAYBETTIN");
-
-    }
-
-    public Game quit(Game game) {
-        throw new MilyonerException(GamePlayError.WRONG_ANSWER, "CIKTIN, DAHA KARPUZ KESECEKTİK ;(");
-
+    private String convertStringToHash(String string) {
+        return Hashing.sha256()
+                .hashString(string, StandardCharsets.UTF_8)
+                .toString();
     }
 }

@@ -7,6 +7,8 @@ import org.maoco.milyoner.gameplay.service.handler.GameStateEnum;
 @Getter
 @Setter
 public class GameRequest {
+
+    //todo: buradaki bazı bilgileri JWT üzerinden alabiliriz
     private GameStateEnum gameState;
     private String gameId;
     private String playerId;

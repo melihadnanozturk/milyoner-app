@@ -41,11 +41,7 @@ public class HandleActionService {
         return handleAction(game);
     }
 
-    //todo: burada status kontrolu yapmaya gerek yok !!
-    //todo: method ismi handleAction olarak değiştirebiliriz
-    //todo: eğer hala tüm işlemler için ayrı ayrı endpoint oluşturulacaksa, service özelleştirikip, ilgili handler'a gidilmesi sağlanabilir
     public Game handleAction(GameQuestionQueryRequest request) {
-        this.checkGameStatus(request.getGameState());
         Game game = Game.buildGameFromRequest(request);
 
         return handleAction(game);

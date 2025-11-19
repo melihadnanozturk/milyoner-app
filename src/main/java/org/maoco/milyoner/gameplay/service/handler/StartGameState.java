@@ -1,7 +1,6 @@
 package org.maoco.milyoner.gameplay.service.handler;
 
 import org.maoco.milyoner.gameplay.domain.Game;
-import org.maoco.milyoner.gameplay.service.GameService;
 
 @GameStateHandler(GameStateEnum.START_GAME)
 public class StartGameState implements GameState {

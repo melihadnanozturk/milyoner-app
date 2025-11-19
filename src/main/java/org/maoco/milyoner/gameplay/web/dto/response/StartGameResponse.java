@@ -8,6 +8,7 @@ import org.maoco.milyoner.gameplay.service.handler.GameStateEnum;
 @Builder
 public class StartGameResponse {
 
+    //todo: extends Game ?
     private String gameId;
     private String playerId;
     private Long questionLevel;
