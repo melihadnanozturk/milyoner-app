@@ -1,4 +1,4 @@
-package org.maoco.milyoner.gameplay.service.handler;
+package org.maoco.milyoner.gameplay.service;
 
 public enum GameStateEnum {
 

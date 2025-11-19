@@ -3,6 +3,7 @@ package org.maoco.milyoner.gameplay.web.controller;
 import jakarta.validation.Valid;
 import org.maoco.milyoner.common.ApiResponse;
 import org.maoco.milyoner.gameplay.domain.Game;
+import org.maoco.milyoner.gameplay.domain.UserScore;
 import org.maoco.milyoner.gameplay.service.GameService;
 import org.maoco.milyoner.gameplay.web.dto.request.GameQuestionAnswerRequest;
 import org.maoco.milyoner.gameplay.web.dto.request.GameQuestionQueryRequest;
@@ -71,14 +72,13 @@ public class GameController {
     }
 
     @PostMapping("/result")
-    public ApiResponse<GameResponse> getResult(@RequestBody GameRequest request) {
-        Game game = gameService.getResult(request);
+    public ApiResponse<UserScoreResponse> getResult(@RequestBody GameRequest request) {
+        UserScore userScore = gameService.getResult(request);
 
-        return ApiResponse.success(GameResponse.builder()
-                .questionLevel(game.getQuestionLevel())
-                .playerId(game.getPlayerId())
-                .gameId(game.getGameId())
-                .gameState(game.getGameState())
+        return ApiResponse.success(UserScoreResponse.builder()
+                .score(userScore.getScore())
+                .message(userScore.getMessage())
+                .username(userScore.getUsername())
                 .build());
     }
 

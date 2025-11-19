@@ -9,12 +9,14 @@ import org.maoco.milyoner.common.exception.NotFoundException;
 import org.maoco.milyoner.gameplay.domain.Answer;
 import org.maoco.milyoner.gameplay.domain.Game;
 import org.maoco.milyoner.gameplay.domain.Question;
-import org.maoco.milyoner.gameplay.service.handler.GameStateEnum;
+import org.maoco.milyoner.gameplay.domain.UserScore;
 import org.maoco.milyoner.gameplay.web.dto.request.GameQuestionAnswerRequest;
 import org.maoco.milyoner.gameplay.web.dto.request.GameQuestionQueryRequest;
 import org.maoco.milyoner.gameplay.web.dto.request.GameRequest;
 import org.maoco.milyoner.gameplay.web.dto.request.StartGameRequest;
 import org.maoco.milyoner.question.data.entity.AnswerEntity;
+import org.maoco.milyoner.question.data.entity.UserEntity;
+import org.maoco.milyoner.question.data.repository.UserRepository;
 import org.maoco.milyoner.question.web.controller.port_in.dto.response.InsAnswerResponse;
 import org.maoco.milyoner.question.web.controller.port_in.service.InsQuestionService;
 import org.springframework.stereotype.Service;
@@ -30,12 +32,14 @@ import java.util.stream.Collectors;
 public class GameService {
 
     private final InsQuestionService insQuestionService;
+    private final UserRepository userRepository;
 
     private final int WRONG_ANSWER_LIMITS = 3;
 
 
-    public GameService(InsQuestionService insQuestionService) {
+    public GameService(InsQuestionService insQuestionService, UserRepository userRepository) {
         this.insQuestionService = insQuestionService;
+        this.userRepository = userRepository;
     }
 
     public Game checkAnswer(GameQuestionAnswerRequest request) {
@@ -145,8 +149,22 @@ public class GameService {
         return game;
     }
 
-    public Game getResult(GameRequest request) {
-        return null;
+    public UserScore getResult(GameRequest request) {
+        UserEntity userEntity = userRepository.findById(request.getPlayerId())
+                .orElseThrow(() -> new NotFoundException("User not found by id : " + request.getPlayerId()));
+
+        UserScore userScore = new UserScore(userEntity.getUsername(), userEntity.getQuestionLevel());
+
+        if (userEntity.getGameState() == GameStateEnum.WON) {
+            userScore.setMessage("OYUNU KAZANDINIZ");
+            return userScore;
+        } else if (userEntity.getGameState() == GameStateEnum.LOST) {
+            userScore.setMessage("OYUNU KAYBETTİNİZ");
+            return userScore;
+        }
+
+        //todo: kullanıcı oyundan mı çıktı ? Yanlis mi cevap verdi ? Bunun kontrolü eklenebilir
+        throw new RuntimeException("KULLANICI ÇIKIŞ YAPTI :O");
     }
 
     private String convertStringToHash(String string) {

@@ -2,7 +2,7 @@ package org.maoco.milyoner.gameplay.web.dto.response;
 
 import lombok.Builder;
 import lombok.Getter;
-import org.maoco.milyoner.gameplay.service.handler.GameStateEnum;
+import org.maoco.milyoner.gameplay.service.GameStateEnum;
 
 @Getter
 @Builder
