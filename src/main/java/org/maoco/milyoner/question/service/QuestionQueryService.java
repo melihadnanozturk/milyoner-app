@@ -49,7 +49,6 @@ public class QuestionQueryService {
         return Question.of(entity);
     }
 
-    //for gamePlay
     public AnswerEntity handleAnswer(Long questionId, Long answerId) {
 
         return answerRepository.findByIdAndQuestionIdAndIsActivate(answerId, questionId, true)

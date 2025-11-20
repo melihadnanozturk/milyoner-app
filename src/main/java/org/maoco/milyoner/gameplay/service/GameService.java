@@ -17,7 +17,7 @@ import org.maoco.milyoner.gameplay.web.dto.request.StartGameRequest;
 import org.maoco.milyoner.question.data.entity.AnswerEntity;
 import org.maoco.milyoner.question.data.entity.UserEntity;
 import org.maoco.milyoner.question.data.repository.UserRepository;
-import org.maoco.milyoner.question.web.controller.port_in.dto.response.InsAnswerResponse;
+import org.maoco.milyoner.question.service.QuestionQueryService;
 import org.maoco.milyoner.question.web.controller.port_in.service.InsQuestionService;
 import org.springframework.stereotype.Service;
 
@@ -35,19 +35,22 @@ public class GameService {
     private final UserRepository userRepository;
 
     private final int WRONG_ANSWER_LIMITS = 3;
+    private final QuestionQueryService questionQueryService;
 
 
-    public GameService(InsQuestionService insQuestionService, UserRepository userRepository) {
+    public GameService(InsQuestionService insQuestionService, UserRepository userRepository, QuestionQueryService questionQueryService) {
         this.insQuestionService = insQuestionService;
         this.userRepository = userRepository;
+        this.questionQueryService = questionQueryService;
     }
 
     public Game checkAnswer(GameQuestionAnswerRequest request) {
         Game game = Game.buildGameFromRequest(request);
-        var data = handleAnswer(request.getAnswerId(), request.getQuestionId());
+        Boolean data = isAnswerCorrect(request.getAnswerId(), request.getQuestionId());
 
+        //todo: oyuncu db de update edilecek
 
-        if (!data.getIsCorrect().equals(true)) {
+        if (!data.equals(true)) {
             game.updateGameState(GameStateEnum.LOST);
         }
 
@@ -60,14 +63,9 @@ public class GameService {
         return game;
     }
 
-    private InsAnswerResponse handleAnswer(Long answerId, Long questionId) {
-//        AnswerEntity answerEntity = queryService.handleAnswer(questionId, answerId);
-        AnswerEntity answerEntity = null;
-        return InsAnswerResponse.builder()
-                .isCorrect(answerEntity.getIsCorrect())
-                .answerId(answerEntity.getId())
-                .answerText(answerEntity.getAnswerText())
-                .build();
+    private Boolean isAnswerCorrect(Long answerId, Long questionId) {
+        AnswerEntity answerEntity = questionQueryService.handleAnswer(questionId, answerId);
+        return answerEntity.getIsCorrect();
     }
 
     public Game won(Game game) {
@@ -95,6 +93,8 @@ public class GameService {
 
         String hashedGameId = this.convertStringToHash(gameId);
         String hashedPlayerId = this.convertStringToHash(playerId);
+
+        //todo: oyuncu save
 
         return Game.builder()
                 .playerId(hashedPlayerId)

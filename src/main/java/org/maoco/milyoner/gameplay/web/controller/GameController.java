@@ -72,7 +72,7 @@ public class GameController {
     }
 
     @PostMapping("/result")
-    public ApiResponse<UserScoreResponse> getResult(@RequestBody GameRequest request) {
+    public ApiResponse<UserScoreResponse> getGameResult(@RequestBody GameRequest request) {
         UserScore userScore = gameService.getResult(request);
 
         return ApiResponse.success(UserScoreResponse.builder()
