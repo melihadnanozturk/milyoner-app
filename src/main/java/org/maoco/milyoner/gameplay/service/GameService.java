@@ -41,20 +41,34 @@ public class GameService {
     }
 
     public Game checkAnswer(GameQuestionAnswerRequest request) {
-        Game game = Game.buildGameFromRequest(request);
+        GamerEntity gamerEntity = gamerService.findById(request.getPlayerId());
         Boolean data = isAnswerCorrect(request.getAnswerId(), request.getQuestionId());
 
-        //todo: oyuncu db de update edilecek
+        Game game = Game.buildGameFromGamerEntity(gamerEntity);
+
+        if (gamerEntity.getGameState() != GameStateEnum.IN_PROGRESS) {
+            throw new RuntimeException("Kullanıcı statusu yanlis");
+        }
 
         if (!data.equals(true)) {
-            game.updateGameState(GameStateEnum.LOST);
+            gamerEntity.setGameState(GameStateEnum.LOST);
+            GamerEntity updatedGamer = gamerService.saveGamer(gamerEntity);
+
+            return Game.buildGameFromGamerEntity(updatedGamer);
         }
 
-        if (game.getQuestionLevel() == 10L) {
-            game.updateGameState(GameStateEnum.WON);
+        if (gamerEntity.getQuestionLevel() == 10L) {
+            gamerEntity.setGameState(GameStateEnum.WON);
+
+            GamerEntity updatedGamer = gamerService.saveGamer(gamerEntity);
+            return Game.buildGameFromGamerEntity(updatedGamer);
+
         }
 
-        game.setQuestionLevel(game.getQuestionLevel() + 1);
+        gamerEntity.setQuestionLevel(game.getQuestionLevel() + 1);
+        GamerEntity updatedGamer = gamerService.saveGamer(gamerEntity);
+
+        game.setQuestionLevel(updatedGamer.getQuestionLevel());
 
         return game;
     }
@@ -90,12 +104,11 @@ public class GameService {
         String hashedGameId = this.convertStringToHash(gameId);
         String hashedPlayerId = this.convertStringToHash(playerId);
         GameStateEnum gameState = GameStateEnum.START_GAME;
-        Long questionLevel = 1L;
 
         GamerEntity newUser = gamerService.createNewUser(new Gamer(request.getUsername(),
                 hashedPlayerId,
                 hashedGameId,
-                questionLevel,
+                0L,
                 gameState));
 
         return Game.builder()
@@ -107,8 +120,8 @@ public class GameService {
     }
 
     public Game getQuestions(GameQuestionQueryRequest request) {
-        Game game = Game.buildGameFromRequest(request);
-        var data = insQuestionService.getQuestion(game.getQuestionLevel());
+        GamerEntity gamerEntity = checkUser(request.getGameId());
+        var data = insQuestionService.getQuestion(gamerEntity.getQuestionLevel());
 
         Question question = Question.of(data);
         List<Answer> answers = question.getAnswers();
@@ -127,7 +140,7 @@ public class GameService {
                 .findFirst()
                 .map(List::of)
                 //todo : new exception
-                .orElseThrow(() -> new NotFoundException("There is no correct answer in question with level: " + game.getQuestionLevel()));
+                .orElseThrow(() -> new NotFoundException("There is no enough correct answer in question questionId: " + question.getQuestionId()));
 
         List<Answer> wrongAnswers = activateAnswers.stream()
                 .filter(answer -> !answer.getIsCorrect())
@@ -146,9 +159,26 @@ public class GameService {
         Collections.shuffle(finalAnswers);
         question.setAnswers(finalAnswers);
 
+        Game game = Game.buildGameFromGamerEntity(gamerEntity);
         game.setQuestion(question);
 
         return game;
+    }
+
+    private GamerEntity checkUser(String id) {
+        GamerEntity gamerEntity = gamerService.findById(id);
+
+        if (gamerEntity.getGameState() == GameStateEnum.START_GAME) {
+            gamerEntity.setGameState(GameStateEnum.IN_PROGRESS);
+            gamerEntity.setQuestionLevel(1L);
+            return gamerService.saveGamer(gamerEntity);
+        }
+
+        if (gamerEntity.getGameState() != GameStateEnum.IN_PROGRESS) {
+            throw new RuntimeException("Kullanıcı yanlış statu ile oyuna girmeye calisiyor");
+        }
+
+        return gamerEntity;
     }
 
     public UserScore getResult(GameRequest request) {

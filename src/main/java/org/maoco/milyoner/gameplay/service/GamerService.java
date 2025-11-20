@@ -24,4 +24,8 @@ public class GamerService {
         return gamerRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User not found by id : " + id));
     }
+
+    public GamerEntity saveGamer(GamerEntity gamerEntity) {
+        return gamerRepository.save(gamerEntity);
+    }
 }

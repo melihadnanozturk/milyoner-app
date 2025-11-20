@@ -3,8 +3,8 @@ package org.maoco.milyoner.gameplay.domain;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import org.maoco.milyoner.gameplay.data.entity.GamerEntity;
 import org.maoco.milyoner.gameplay.service.GameStateEnum;
-import org.maoco.milyoner.gameplay.web.dto.request.GameRequest;
 
 @Getter
 @Setter
@@ -29,12 +29,12 @@ public class Game {
         this.setGameState(gameState);
     }
 
-    public static Game buildGameFromRequest(GameRequest request) {
+    public static Game buildGameFromGamerEntity(GamerEntity gamerEntity) {
         return Game.builder()
-                .playerId(request.getPlayerId())
-                .gameId(request.getGameId())
-                .questionLevel(request.getQuestionLevel())
-                .gameState(request.getGameState())
+                .playerId(gamerEntity.getId())
+                .gameId(gamerEntity.getGameId())
+                .gameState(gamerEntity.getGameState())
+                .questionLevel(gamerEntity.getQuestionLevel())
                 .build();
     }
 }

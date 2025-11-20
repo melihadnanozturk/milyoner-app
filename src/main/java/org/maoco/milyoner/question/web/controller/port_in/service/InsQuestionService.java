@@ -35,33 +35,4 @@ public class InsQuestionService {
                         .build()).toList())
                 .build();
     }
-
-    public InsAnswerResponse handleAnswer(Long answerId, Long questionId) {
-        AnswerEntity answerEntity = queryService.handleAnswer(questionId, answerId);
-        return InsAnswerResponse.builder()
-                .isCorrect(answerEntity.getIsCorrect())
-                .answerId(answerEntity.getId())
-                .answerText(answerEntity.getAnswerText())
-                .build();
-    }
-
-    public Game checkAnswer(GameQuestionAnswerRequest request) {
-        Game game = Game.buildGameFromRequest(request);
-        var data = handleAnswer(request.getAnswerId(), request.getQuestionId());
-
-
-        if (!data.getIsCorrect().equals(true)) {
-            game.updateGameState(GameStateEnum.LOST);
-            return game;
-        }
-
-        if (game.getQuestionLevel() == 10L) {
-            game.updateGameState(GameStateEnum.WON);
-            return game;
-        }
-
-        game.setQuestionLevel(game.getQuestionLevel() + 1);
-
-        return game;
-    }
 }
