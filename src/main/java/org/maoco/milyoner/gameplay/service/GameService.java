@@ -6,17 +6,13 @@ import org.maoco.milyoner.common.error.GamePlayError;
 import org.maoco.milyoner.common.exception.AnswerException;
 import org.maoco.milyoner.common.exception.MilyonerException;
 import org.maoco.milyoner.common.exception.NotFoundException;
-import org.maoco.milyoner.gameplay.domain.Answer;
-import org.maoco.milyoner.gameplay.domain.Game;
-import org.maoco.milyoner.gameplay.domain.Question;
-import org.maoco.milyoner.gameplay.domain.UserScore;
+import org.maoco.milyoner.gameplay.data.entity.GamerEntity;
+import org.maoco.milyoner.gameplay.domain.*;
 import org.maoco.milyoner.gameplay.web.dto.request.GameQuestionAnswerRequest;
 import org.maoco.milyoner.gameplay.web.dto.request.GameQuestionQueryRequest;
 import org.maoco.milyoner.gameplay.web.dto.request.GameRequest;
 import org.maoco.milyoner.gameplay.web.dto.request.StartGameRequest;
 import org.maoco.milyoner.question.data.entity.AnswerEntity;
-import org.maoco.milyoner.question.data.entity.UserEntity;
-import org.maoco.milyoner.question.data.repository.UserRepository;
 import org.maoco.milyoner.question.service.QuestionQueryService;
 import org.maoco.milyoner.question.web.controller.port_in.service.InsQuestionService;
 import org.springframework.stereotype.Service;
@@ -32,16 +28,16 @@ import java.util.stream.Collectors;
 public class GameService {
 
     private final InsQuestionService insQuestionService;
-    private final UserRepository userRepository;
 
     private final int WRONG_ANSWER_LIMITS = 3;
     private final QuestionQueryService questionQueryService;
+    private final GamerService gamerService;
 
 
-    public GameService(InsQuestionService insQuestionService, UserRepository userRepository, QuestionQueryService questionQueryService) {
+    public GameService(InsQuestionService insQuestionService, QuestionQueryService questionQueryService, GamerService gamerService, GamerService gamerService1) {
         this.insQuestionService = insQuestionService;
-        this.userRepository = userRepository;
         this.questionQueryService = questionQueryService;
+        this.gamerService = gamerService1;
     }
 
     public Game checkAnswer(GameQuestionAnswerRequest request) {
@@ -93,14 +89,20 @@ public class GameService {
 
         String hashedGameId = this.convertStringToHash(gameId);
         String hashedPlayerId = this.convertStringToHash(playerId);
+        GameStateEnum gameState = GameStateEnum.START_GAME;
+        Long questionLevel = 1L;
 
-        //todo: oyuncu save
+        GamerEntity newUser = gamerService.createNewUser(new Gamer(request.getUsername(),
+                hashedPlayerId,
+                hashedGameId,
+                questionLevel,
+                gameState));
 
         return Game.builder()
-                .playerId(hashedPlayerId)
-                .gameId(hashedGameId)
-                .gameState(GameStateEnum.START_GAME)
-                .questionLevel(1L)
+                .playerId(newUser.getId())
+                .gameId(newUser.getGameId())
+                .gameState(newUser.getGameState())
+                .questionLevel(newUser.getQuestionLevel())
                 .build();
     }
 
@@ -150,15 +152,14 @@ public class GameService {
     }
 
     public UserScore getResult(GameRequest request) {
-        UserEntity userEntity = userRepository.findById(request.getPlayerId())
-                .orElseThrow(() -> new NotFoundException("User not found by id : " + request.getPlayerId()));
+        GamerEntity gamerEntity = gamerService.findById(request.getPlayerId());
 
-        UserScore userScore = new UserScore(userEntity.getUsername(), userEntity.getQuestionLevel());
+        UserScore userScore = new UserScore(gamerEntity.getUsername(), gamerEntity.getQuestionLevel());
 
-        if (userEntity.getGameState() == GameStateEnum.WON) {
+        if (gamerEntity.getGameState() == GameStateEnum.WON) {
             userScore.setMessage("OYUNU KAZANDINIZ");
             return userScore;
-        } else if (userEntity.getGameState() == GameStateEnum.LOST) {
+        } else if (gamerEntity.getGameState() == GameStateEnum.LOST) {
             userScore.setMessage("OYUNU KAYBETTİNİZ");
             return userScore;
         }
