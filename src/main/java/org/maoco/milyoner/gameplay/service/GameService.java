@@ -128,14 +128,11 @@ public class GameService {
             return Game.buildGameFromGamerEntity(updatedGamer);
         }
 
-        Game game = Game.buildGameFromGamerEntity(gamerEntity);
-
-        gamerEntity.setQuestionLevel(game.getQuestionLevel() + 1);
+        gamerEntity.setQuestionLevel(gamerEntity.getQuestionLevel() + 1);
         GamerEntity updatedGamer = gamerService.saveGamer(gamerEntity);
 
-        game.setQuestionLevel(updatedGamer.getQuestionLevel());
+        return Game.buildGameFromGamerEntity(updatedGamer);
 
-        return game;
     }
 
     private Boolean isAnswerCorrect(Long answerId, Long questionId) {
@@ -146,7 +143,7 @@ public class GameService {
     public UserScore getResult(GameRequest request) {
         GamerEntity gamerEntity = gamerService.findById(request.getPlayerId());
 
-        UserScore userScore = new UserScore(gamerEntity.getUsername(), gamerEntity.getQuestionLevel());
+        UserScore userScore = new UserScore(gamerEntity.getUsername(), gamerEntity.getQuestionLevel(),gamerEntity.getGameState());
 
         if (gamerEntity.getGameState() == GameStateEnum.WON) {
             userScore.setMessage("OYUNU KAZANDINIZ");

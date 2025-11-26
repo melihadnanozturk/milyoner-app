@@ -25,10 +25,6 @@ public class Game {
         this.gameState = gameState;
     }
 
-    public void updateGameState(GameStateEnum gameState) {
-        this.setGameState(gameState);
-    }
-
     public static Game buildGameFromGamerEntity(GamerEntity gamerEntity) {
         return Game.builder()
                 .playerId(gamerEntity.getId())

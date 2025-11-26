@@ -11,6 +11,7 @@ public class StartGameResponse {
     //todo: extends Game ?
     private String gameId;
     private String playerId;
+
     private Long questionLevel;
     private GameStateEnum gameState;
 }

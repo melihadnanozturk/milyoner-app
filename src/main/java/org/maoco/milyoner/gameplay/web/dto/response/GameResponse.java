@@ -9,8 +9,9 @@ import org.maoco.milyoner.gameplay.service.GameStateEnum;
 @Setter
 @Builder
 public class GameResponse {
-    private GameStateEnum gameState;
     private String gameId;
     private String playerId;
+
+    private GameStateEnum gameState;
     private Long questionLevel;
 }
