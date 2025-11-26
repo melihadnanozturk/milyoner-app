@@ -21,21 +21,21 @@ public class ControllerAdvice {
     @ExceptionHandler(NotFoundException.class)
     public ApiResponse<String> handleNotFoundException(NotFoundException e) {
 
-        return ApiResponse.failed(e.getMessage(), HttpStatus.BAD_REQUEST);
+        return ApiResponse.failed(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(CreateAnswerException.class)
     public ApiResponse<String> handleCreateAnswerException(CreateAnswerException e) {
 
-        return ApiResponse.failed(e.getMessage(), HttpStatus.BAD_REQUEST);
+        return ApiResponse.failed(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(AnswerException.class)
     public ApiResponse<String> handleAnswerException(AnswerException e) {
 
-        return ApiResponse.failed(e.getMessage(), HttpStatus.BAD_REQUEST);
+        return ApiResponse.failed(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
 

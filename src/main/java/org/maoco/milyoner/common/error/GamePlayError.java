@@ -7,7 +7,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum GamePlayError implements Error {
 
-    WRONG_ANSWER(5001, "Answer is incorrect", "Verilen cevap yanlıştı");
+    WRONG_ANSWER(5001, "Answer is incorrect", "Verilen cevap yanlıştı"),
+    INCORRECT_STATUS(6001, "Player Status is incorrect", "Oyuncu statusu yanlıştır");
 
     private final Integer code;
     private final String message;

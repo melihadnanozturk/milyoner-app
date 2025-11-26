@@ -2,7 +2,9 @@ package org.maoco.milyoner.gameplay.service;
 
 import com.google.common.hash.Hashing;
 import jakarta.validation.Valid;
+import org.maoco.milyoner.common.error.GamePlayError;
 import org.maoco.milyoner.common.exception.AnswerException;
+import org.maoco.milyoner.common.exception.MilyonerException;
 import org.maoco.milyoner.common.exception.NotFoundException;
 import org.maoco.milyoner.gameplay.data.entity.GamerEntity;
 import org.maoco.milyoner.gameplay.domain.*;
@@ -70,7 +72,7 @@ public class GameService {
                 .collect(Collectors.collectingAndThen(Collectors.toList(),
                         list -> {
                             if (list.size() < WRONG_ANSWER_LIMITS + 1) {
-                                throw new AnswerException("There is not enough answer in question with questionId: " + question.getQuestionId());
+                                throw new NotFoundException("There is not enough answer in question with questionId: " + question.getQuestionId());
                             }
                             return list;
                         }));
@@ -87,7 +89,7 @@ public class GameService {
                 .filter(answer -> !answer.getIsCorrect())
                 .collect(Collectors.collectingAndThen(Collectors.toList(), list -> {
                             if (list.size() < WRONG_ANSWER_LIMITS) {
-                                new AnswerException("There is not enough wrong answer in question with questionId: " + question.getQuestionId());
+                                new NotFoundException("There is not enough wrong answer in question with questionId: " + question.getQuestionId());
                             }
                             Collections.shuffle(list);
                             return list.stream().limit(WRONG_ANSWER_LIMITS).collect(Collectors.toList());
@@ -111,7 +113,7 @@ public class GameService {
         Boolean data = isAnswerCorrect(request.getAnswerId(), request.getQuestionId());
 
         if (gamerEntity.getGameState() != GameStateEnum.IN_PROGRESS) {
-            throw new RuntimeException("Kullanıcı statusu yanlis");
+            throw new MilyonerException(GamePlayError.INCORRECT_STATUS);
         }
 
         if (!data.equals(true)) {
@@ -154,7 +156,7 @@ public class GameService {
         }
 
         //todo: kullanıcı oyundan mı çıktı ? Yanlis mi cevap verdi ? Bunun kontrolü eklenebilir
-        throw new RuntimeException("KULLANICI ÇIKIŞ YAPTI :O");
+        throw new MilyonerException(GamePlayError.INCORRECT_STATUS);
     }
 
     private GamerEntity checkUser(String id) {
@@ -167,7 +169,7 @@ public class GameService {
         }
 
         if (gamerEntity.getGameState() != GameStateEnum.IN_PROGRESS) {
-            throw new RuntimeException("Kullanıcı yanlış statu ile oyuna girmeye calisiyor");
+            throw new MilyonerException(GamePlayError.INCORRECT_STATUS);
         }
 
         return gamerEntity;
