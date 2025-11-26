@@ -2,9 +2,7 @@ package org.maoco.milyoner.gameplay.service;
 
 import com.google.common.hash.Hashing;
 import jakarta.validation.Valid;
-import org.maoco.milyoner.common.error.GamePlayError;
 import org.maoco.milyoner.common.exception.AnswerException;
-import org.maoco.milyoner.common.exception.MilyonerException;
 import org.maoco.milyoner.common.exception.NotFoundException;
 import org.maoco.milyoner.gameplay.data.entity.GamerEntity;
 import org.maoco.milyoner.gameplay.domain.*;
@@ -40,63 +38,6 @@ public class GameService {
         this.gamerService = gamerService1;
     }
 
-    public Game checkAnswer(GameQuestionAnswerRequest request) {
-        GamerEntity gamerEntity = gamerService.findById(request.getPlayerId());
-        Boolean data = isAnswerCorrect(request.getAnswerId(), request.getQuestionId());
-
-        Game game = Game.buildGameFromGamerEntity(gamerEntity);
-
-        if (gamerEntity.getGameState() != GameStateEnum.IN_PROGRESS) {
-            throw new RuntimeException("Kullanıcı statusu yanlis");
-        }
-
-        if (!data.equals(true)) {
-            gamerEntity.setGameState(GameStateEnum.LOST);
-            GamerEntity updatedGamer = gamerService.saveGamer(gamerEntity);
-
-            return Game.buildGameFromGamerEntity(updatedGamer);
-        }
-
-        if (gamerEntity.getQuestionLevel() == 10L) {
-            gamerEntity.setGameState(GameStateEnum.WON);
-
-            GamerEntity updatedGamer = gamerService.saveGamer(gamerEntity);
-            return Game.buildGameFromGamerEntity(updatedGamer);
-
-        }
-
-        gamerEntity.setQuestionLevel(game.getQuestionLevel() + 1);
-        GamerEntity updatedGamer = gamerService.saveGamer(gamerEntity);
-
-        game.setQuestionLevel(updatedGamer.getQuestionLevel());
-
-        return game;
-    }
-
-    private Boolean isAnswerCorrect(Long answerId, Long questionId) {
-        AnswerEntity answerEntity = questionQueryService.handleAnswer(questionId, answerId);
-        return answerEntity.getIsCorrect();
-    }
-
-    public Game won(Game game) {
-        return Game.builder()
-                .gameId("deneme")
-                .gameState(GameStateEnum.WON)
-                .playerId("PLAYER_ID")
-                .questionLevel(10L)
-                .build();
-    }
-
-    public Game lost(Game game) {
-        throw new MilyonerException(GamePlayError.WRONG_ANSWER, "KAYBETTIN");
-
-    }
-
-    public Game quit(Game game) {
-        throw new MilyonerException(GamePlayError.WRONG_ANSWER, "CIKTIN, DAHA KARPUZ KESECEKTİK ;(");
-
-    }
-
     public Game startGame(@Valid StartGameRequest request) {
         String gameId = UUID.randomUUID().toString();
         String playerId = gameId + request.getUsername();
@@ -120,7 +61,7 @@ public class GameService {
     }
 
     public Game getQuestions(GameQuestionQueryRequest request) {
-        GamerEntity gamerEntity = checkUser(request.getGameId());
+        GamerEntity gamerEntity = checkUser(request.getPlayerId());
         var data = insQuestionService.getQuestion(gamerEntity.getQuestionLevel());
 
         Question question = Question.of(data);
@@ -165,20 +106,41 @@ public class GameService {
         return game;
     }
 
-    private GamerEntity checkUser(String id) {
-        GamerEntity gamerEntity = gamerService.findById(id);
-
-        if (gamerEntity.getGameState() == GameStateEnum.START_GAME) {
-            gamerEntity.setGameState(GameStateEnum.IN_PROGRESS);
-            gamerEntity.setQuestionLevel(1L);
-            return gamerService.saveGamer(gamerEntity);
-        }
+    public Game checkAnswer(GameQuestionAnswerRequest request) {
+        GamerEntity gamerEntity = gamerService.findById(request.getPlayerId());
+        Boolean data = isAnswerCorrect(request.getAnswerId(), request.getQuestionId());
 
         if (gamerEntity.getGameState() != GameStateEnum.IN_PROGRESS) {
-            throw new RuntimeException("Kullanıcı yanlış statu ile oyuna girmeye calisiyor");
+            throw new RuntimeException("Kullanıcı statusu yanlis");
         }
 
-        return gamerEntity;
+        if (!data.equals(true)) {
+            gamerEntity.setGameState(GameStateEnum.LOST);
+            GamerEntity updatedGamer = gamerService.saveGamer(gamerEntity);
+
+            return Game.buildGameFromGamerEntity(updatedGamer);
+        }
+
+        if (gamerEntity.getQuestionLevel() == 10L) {
+            gamerEntity.setGameState(GameStateEnum.WON);
+
+            GamerEntity updatedGamer = gamerService.saveGamer(gamerEntity);
+            return Game.buildGameFromGamerEntity(updatedGamer);
+        }
+
+        Game game = Game.buildGameFromGamerEntity(gamerEntity);
+
+        gamerEntity.setQuestionLevel(game.getQuestionLevel() + 1);
+        GamerEntity updatedGamer = gamerService.saveGamer(gamerEntity);
+
+        game.setQuestionLevel(updatedGamer.getQuestionLevel());
+
+        return game;
+    }
+
+    private Boolean isAnswerCorrect(Long answerId, Long questionId) {
+        AnswerEntity answerEntity = questionQueryService.handleAnswer(questionId, answerId);
+        return answerEntity.getIsCorrect();
     }
 
     public UserScore getResult(GameRequest request) {
@@ -196,6 +158,22 @@ public class GameService {
 
         //todo: kullanıcı oyundan mı çıktı ? Yanlis mi cevap verdi ? Bunun kontrolü eklenebilir
         throw new RuntimeException("KULLANICI ÇIKIŞ YAPTI :O");
+    }
+
+    private GamerEntity checkUser(String id) {
+        GamerEntity gamerEntity = gamerService.findById(id);
+
+        if (gamerEntity.getGameState() == GameStateEnum.START_GAME) {
+            gamerEntity.setGameState(GameStateEnum.IN_PROGRESS);
+            gamerEntity.setQuestionLevel(1L);
+            return gamerService.saveGamer(gamerEntity);
+        }
+
+        if (gamerEntity.getGameState() != GameStateEnum.IN_PROGRESS) {
+            throw new RuntimeException("Kullanıcı yanlış statu ile oyuna girmeye calisiyor");
+        }
+
+        return gamerEntity;
     }
 
     private String convertStringToHash(String string) {

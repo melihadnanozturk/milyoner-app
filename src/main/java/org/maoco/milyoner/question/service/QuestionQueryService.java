@@ -50,7 +50,6 @@ public class QuestionQueryService {
     }
 
     public AnswerEntity handleAnswer(Long questionId, Long answerId) {
-
         return answerRepository.findByIdAndQuestionIdAndIsActivate(answerId, questionId, true)
                 .orElseThrow(() -> new NotFoundException("Answer not found with questionId :" + questionId + " and answerId: " + answerId));
     }
