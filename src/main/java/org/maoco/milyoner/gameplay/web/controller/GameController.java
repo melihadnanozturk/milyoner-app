@@ -35,7 +35,7 @@ public class GameController {
                 .build());
     }
 
-    @GetMapping("/questions")
+    @PostMapping("/questions")
     public ApiResponse<GameQuestionQueryResponse> getQuestions(@RequestBody GameQuestionQueryRequest request) {
         Game game = gameService.getQuestions(request);
 
@@ -59,7 +59,7 @@ public class GameController {
         return ApiResponse.success(data);
     }
 
-    @PostMapping("/questions")
+    @PostMapping("/answer")
     public ApiResponse<GameResponse> setAnswer(@RequestBody GameQuestionAnswerRequest request) {
         Game game = gameService.checkAnswer(request);
 
@@ -71,7 +71,7 @@ public class GameController {
                 .build());
     }
 
-    @PostMapping("/result")
+    @GetMapping("/result")
     public ApiResponse<UserScoreResponse> getGameResult(@RequestBody GameRequest request) {
         UserScore userScore = gameService.getResult(request);
 
