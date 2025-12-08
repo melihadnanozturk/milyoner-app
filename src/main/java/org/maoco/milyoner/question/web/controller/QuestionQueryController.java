@@ -14,7 +14,7 @@ import java.util.Collection;
 import java.util.List;
 
 @RestController
-@RequestMapping("/questions")
+@RequestMapping("/admin/questions")
 @RequiredArgsConstructor
 public class QuestionQueryController {
 

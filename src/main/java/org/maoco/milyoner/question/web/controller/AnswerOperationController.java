@@ -10,7 +10,7 @@ import org.maoco.milyoner.question.web.dto.response.AnswerResponse;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/answers")
+@RequestMapping("/admin/answers")
 @RequiredArgsConstructor
 public class AnswerOperationController {
 
