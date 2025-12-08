@@ -1,6 +1,6 @@
 package org.maoco.milyoner.gameplay.service;
 
-public enum GameStateEnum {
+public enum GameState {
 
     START_GAME,
     IN_PROGRESS,

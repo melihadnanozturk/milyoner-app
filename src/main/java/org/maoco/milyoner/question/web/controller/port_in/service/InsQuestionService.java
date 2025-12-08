@@ -1,9 +1,5 @@
 package org.maoco.milyoner.question.web.controller.port_in.service;
 
-import org.maoco.milyoner.gameplay.domain.Game;
-import org.maoco.milyoner.gameplay.service.GameStateEnum;
-import org.maoco.milyoner.gameplay.web.dto.request.GameQuestionAnswerRequest;
-import org.maoco.milyoner.question.data.entity.AnswerEntity;
 import org.maoco.milyoner.question.domain.Question;
 import org.maoco.milyoner.question.service.QuestionQueryService;
 import org.maoco.milyoner.question.web.controller.port_in.dto.response.InsAnswerResponse;

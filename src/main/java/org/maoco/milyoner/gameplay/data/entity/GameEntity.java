@@ -5,26 +5,22 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JdbcType;
-import org.hibernate.annotations.Type;
 import org.hibernate.dialect.PostgreSQLEnumJdbcType;
-import org.maoco.milyoner.gameplay.service.GameStateEnum;
+import org.maoco.milyoner.gameplay.service.GameState;
 
 @Entity
-@Table(name = "gamer")
+@Table(name = "game")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class GamerEntity {
+public class GameEntity {
 
-    //id = player_id
+    //id = game_id
     @Id
     private String id;
 
     @Column(name = "username")
     private String username;
-
-    @Column(name = "game_id")
-    private String gameId;
 
     @Column(name = "question_level")
     private Long questionLevel;
@@ -32,5 +28,5 @@ public class GamerEntity {
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "game_state_type")
     @JdbcType(PostgreSQLEnumJdbcType.class)
-    private GameStateEnum gameState;
+    private GameState gameState;
 }

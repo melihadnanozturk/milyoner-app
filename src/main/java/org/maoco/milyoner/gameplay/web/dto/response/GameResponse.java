@@ -1,17 +1,11 @@
 package org.maoco.milyoner.gameplay.web.dto.response;
 
 import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-import org.maoco.milyoner.gameplay.service.GameStateEnum;
+import org.maoco.milyoner.gameplay.service.GameState;
 
-@Getter
-@Setter
 @Builder
-public class GameResponse {
-    private String gameId;
-    private String playerId;
-
-    private GameStateEnum gameState;
-    private Long questionLevel;
+public record GameResponse(
+        Long questionLevel,
+        GameState gameState
+) {
 }

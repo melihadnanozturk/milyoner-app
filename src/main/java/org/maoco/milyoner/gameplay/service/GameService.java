@@ -1,27 +1,29 @@
 package org.maoco.milyoner.gameplay.service;
 
-import com.google.common.hash.Hashing;
 import jakarta.validation.Valid;
 import org.maoco.milyoner.common.error.GamePlayError;
-import org.maoco.milyoner.common.exception.AnswerException;
 import org.maoco.milyoner.common.exception.MilyonerException;
 import org.maoco.milyoner.common.exception.NotFoundException;
-import org.maoco.milyoner.gameplay.data.entity.GamerEntity;
-import org.maoco.milyoner.gameplay.domain.*;
+import org.maoco.milyoner.common.security.GameAuthenticationToken;
+import org.maoco.milyoner.common.security.GameSessionContext;
+import org.maoco.milyoner.common.security.HashUtil;
+import org.maoco.milyoner.common.security.TokenService;
+import org.maoco.milyoner.gameplay.data.entity.GameEntity;
+import org.maoco.milyoner.gameplay.domain.Answer;
+import org.maoco.milyoner.gameplay.domain.Game;
+import org.maoco.milyoner.gameplay.domain.Question;
+import org.maoco.milyoner.gameplay.domain.UserScore;
 import org.maoco.milyoner.gameplay.web.dto.request.GameQuestionAnswerRequest;
-import org.maoco.milyoner.gameplay.web.dto.request.GameQuestionQueryRequest;
-import org.maoco.milyoner.gameplay.web.dto.request.GameRequest;
 import org.maoco.milyoner.gameplay.web.dto.request.StartGameRequest;
 import org.maoco.milyoner.question.data.entity.AnswerEntity;
 import org.maoco.milyoner.question.service.QuestionQueryService;
 import org.maoco.milyoner.question.web.controller.port_in.service.InsQuestionService;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,40 +33,45 @@ public class GameService {
 
     private final int WRONG_ANSWER_LIMITS = 3;
     private final QuestionQueryService questionQueryService;
-    private final GamerService gamerService;
+    private final GamePersistenceService gamePersistenceService;
+    private final HashUtil hashUtil;
 
+    @Value("${jwt.secret}")
+    private String secretKey;
 
-    public GameService(InsQuestionService insQuestionService, QuestionQueryService questionQueryService, GamerService gamerService, GamerService gamerService1) {
+    private final TokenService tokenService;
+
+    public GameService(InsQuestionService insQuestionService, QuestionQueryService questionQueryService, GamePersistenceService gamePersistenceService, HashUtil hashUtil, TokenService tokenService) {
         this.insQuestionService = insQuestionService;
         this.questionQueryService = questionQueryService;
-        this.gamerService = gamerService1;
+        this.gamePersistenceService = gamePersistenceService;
+        this.hashUtil = hashUtil;
+        this.tokenService = tokenService;
     }
 
-    public Game startGame(@Valid StartGameRequest request) {
-        String gameId = UUID.randomUUID().toString();
-        String playerId = gameId + request.getUsername();
+    public String startGame(@Valid StartGameRequest request) {
+        String username = request.getUsername();
+        String gameId = UUID.randomUUID() + "-" + username + "-" + System.currentTimeMillis();
+//        todo: burada gameId sonrasında hash edilecek
+//        String hashGameId = hashUtil.convertStringToHash(gameId + secretKey);
 
-        String hashedGameId = this.convertStringToHash(gameId);
-        String hashedPlayerId = this.convertStringToHash(playerId);
-        GameStateEnum gameState = GameStateEnum.START_GAME;
-
-        GamerEntity newUser = gamerService.createNewUser(new Gamer(request.getUsername(),
-                hashedPlayerId,
-                hashedGameId,
+        gamePersistenceService.createNewUser(new Game(
+                gameId,
+                GameState.START_GAME,
                 0L,
-                gameState));
+                username
+        ));
 
-        return Game.builder()
-                .playerId(newUser.getId())
-                .gameId(newUser.getGameId())
-                .gameState(newUser.getGameState())
-                .questionLevel(newUser.getQuestionLevel())
-                .build();
+        Map<String, Object> extraClaims = new HashMap<>();
+        extraClaims.put("gameId", gameId);
+
+        return tokenService.generateToken(username, extraClaims);
     }
 
-    public Game getQuestions(GameQuestionQueryRequest request) {
-        GamerEntity gamerEntity = checkUser(request.getPlayerId());
-        var data = insQuestionService.getQuestion(gamerEntity.getQuestionLevel());
+    public Game getQuestions() {
+        GameSessionContext currentSession = getCurrentSession();
+        GameEntity gameEntity = checkUser(currentSession.gameId());
+        var data = insQuestionService.getQuestion(gameEntity.getQuestionLevel());
 
         Question question = Question.of(data);
         List<Answer> answers = question.getAnswers();
@@ -102,36 +109,40 @@ public class GameService {
         Collections.shuffle(finalAnswers);
         question.setAnswers(finalAnswers);
 
-        Game game = Game.buildGameFromGamerEntity(gamerEntity);
+        Game game = Game.buildGameFromGamerEntity(gameEntity);
         game.setQuestion(question);
 
         return game;
     }
 
     public Game checkAnswer(GameQuestionAnswerRequest request) {
-        GamerEntity gamerEntity = gamerService.findById(request.getPlayerId());
+        GameSessionContext session = getCurrentSession();
+        GameEntity gameEntity = gamePersistenceService.findById(session.gameId());
         Boolean data = isAnswerCorrect(request.getAnswerId(), request.getQuestionId());
 
-        if (gamerEntity.getGameState() != GameStateEnum.IN_PROGRESS) {
+        if (gameEntity.getGameState() != GameState.IN_PROGRESS) {
             throw new MilyonerException(GamePlayError.INCORRECT_STATUS);
         }
 
         if (!data.equals(true)) {
-            gamerEntity.setGameState(GameStateEnum.LOST);
-            GamerEntity updatedGamer = gamerService.saveGamer(gamerEntity);
+            gameEntity.setGameState(GameState.LOST);
+            GameEntity updatedGamer = gamePersistenceService.saveGamer(gameEntity);
 
+            return Game.builder()
+                    .questionLevel(null)
+                    .gameState(updatedGamer.getGameState())
+                    .build();
+        }
+
+        if (gameEntity.getQuestionLevel() == 10L) {
+            gameEntity.setGameState(GameState.WON);
+
+            GameEntity updatedGamer = gamePersistenceService.saveGamer(gameEntity);
             return Game.buildGameFromGamerEntity(updatedGamer);
         }
 
-        if (gamerEntity.getQuestionLevel() == 10L) {
-            gamerEntity.setGameState(GameStateEnum.WON);
-
-            GamerEntity updatedGamer = gamerService.saveGamer(gamerEntity);
-            return Game.buildGameFromGamerEntity(updatedGamer);
-        }
-
-        gamerEntity.setQuestionLevel(gamerEntity.getQuestionLevel() + 1);
-        GamerEntity updatedGamer = gamerService.saveGamer(gamerEntity);
+        gameEntity.setQuestionLevel(gameEntity.getQuestionLevel() + 1);
+        GameEntity updatedGamer = gamePersistenceService.saveGamer(gameEntity);
 
         return Game.buildGameFromGamerEntity(updatedGamer);
 
@@ -142,15 +153,16 @@ public class GameService {
         return answerEntity.getIsCorrect();
     }
 
-    public UserScore getResult(GameRequest request) {
-        GamerEntity gamerEntity = gamerService.findById(request.getPlayerId());
+    public UserScore getResult() {
+        GameSessionContext session = getCurrentSession();
+        GameEntity gameEntity = gamePersistenceService.findById(session.gameId());
 
-        UserScore userScore = new UserScore(gamerEntity.getUsername(), gamerEntity.getQuestionLevel(),gamerEntity.getGameState());
+        UserScore userScore = new UserScore(gameEntity.getUsername(), gameEntity.getQuestionLevel(), gameEntity.getGameState());
 
-        if (gamerEntity.getGameState() == GameStateEnum.WON) {
+        if (gameEntity.getGameState() == GameState.WON) {
             userScore.setMessage("OYUNU KAZANDINIZ");
             return userScore;
-        } else if (gamerEntity.getGameState() == GameStateEnum.LOST) {
+        } else if (gameEntity.getGameState() == GameState.LOST) {
             userScore.setMessage("OYUNU KAYBETTİNİZ");
             return userScore;
         }
@@ -159,25 +171,28 @@ public class GameService {
         throw new MilyonerException(GamePlayError.INCORRECT_STATUS);
     }
 
-    private GamerEntity checkUser(String id) {
-        GamerEntity gamerEntity = gamerService.findById(id);
+    private GameEntity checkUser(String id) {
+        GameEntity gameEntity = gamePersistenceService.findById(id);
 
-        if (gamerEntity.getGameState() == GameStateEnum.START_GAME) {
-            gamerEntity.setGameState(GameStateEnum.IN_PROGRESS);
-            gamerEntity.setQuestionLevel(1L);
-            return gamerService.saveGamer(gamerEntity);
+        if (gameEntity.getGameState() == GameState.START_GAME) {
+            gameEntity.setGameState(GameState.IN_PROGRESS);
+            gameEntity.setQuestionLevel(1L);
+            return gamePersistenceService.saveGamer(gameEntity);
         }
 
-        if (gamerEntity.getGameState() != GameStateEnum.IN_PROGRESS) {
+        if (gameEntity.getGameState() != GameState.IN_PROGRESS) {
             throw new MilyonerException(GamePlayError.INCORRECT_STATUS);
         }
 
-        return gamerEntity;
+        return gameEntity;
     }
 
-    private String convertStringToHash(String string) {
-        return Hashing.sha256()
-                .hashString(string, StandardCharsets.UTF_8)
-                .toString();
+    private GameSessionContext getCurrentSession() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth instanceof GameAuthenticationToken gameAuth) {
+            return gameAuth.getGameSessionContext();
+        }
+        throw new IllegalStateException("Güvenlik bağlamı bulunamadı veya geçersiz!");
     }
 }

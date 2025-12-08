@@ -1,25 +1,29 @@
 package org.maoco.milyoner.common.security;
 
-
-import org.springframework.security.oauth2.jwt.Jwt;
+import org.maoco.milyoner.gameplay.service.GamePersistenceService;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
-
-import java.util.Map;
 
 @Component
 public class GameJwtConverter implements Converter<Jwt, AbstractAuthenticationToken> {
 
+    private final GamePersistenceService gamePersistenceService;
+
+    public GameJwtConverter(GamePersistenceService gamePersistenceService) {
+        this.gamePersistenceService = gamePersistenceService;
+    }
 
     @Override
-    public AbstractAuthenticationToken convert(Jwt source) {
+    public AbstractAuthenticationToken convert(Jwt token) {
+        String subject = token.getSubject();
 
-        String subject = source.getSubject();
+        String gameId = token.getClaims().get("gameId").toString();
 
-        Map<String, Object> claims = source.getClaims();
+        GameSessionContext gameSessionContext = new GameSessionContext(subject, gameId);
+
         System.out.println(subject);
-        return new JwtAuthenticationToken(source, null, subject);
+        return new GameAuthenticationToken(null, gameSessionContext, token);
     }
 }

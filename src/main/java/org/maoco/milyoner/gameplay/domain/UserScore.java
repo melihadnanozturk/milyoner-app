@@ -2,12 +2,12 @@ package org.maoco.milyoner.gameplay.domain;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.maoco.milyoner.gameplay.service.GameStateEnum;
+import org.maoco.milyoner.gameplay.service.GameState;
 
 @Getter
 public class UserScore {
 
-    public UserScore(String username, Long score,GameStateEnum gameState) {
+    public UserScore(String username, Long score, GameState gameState) {
         this.score = score;
         this.username = username;
         this.gameState = gameState;
@@ -21,6 +21,6 @@ public class UserScore {
     @Setter
     private String message;
 
-    private GameStateEnum gameState;
+    private GameState gameState;
 
 }
