@@ -15,16 +15,18 @@ import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 public class AdminEntity {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "username")
     private String username;
 
+    //todo: sifreler hasli sekilde tutulabilir
     @Column(name = "pass")
     private String password;
 
     @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "game_state_type")
+    @Column(columnDefinition = "admin_roles",name = "roles")
     @JdbcType(PostgreSQLEnumJdbcType.class)
     private UserRoles userRoles;
 }

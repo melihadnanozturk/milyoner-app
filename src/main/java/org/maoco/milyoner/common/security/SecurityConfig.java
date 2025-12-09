@@ -7,19 +7,18 @@ import com.nimbusds.jose.jwk.OctetSequenceKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
-import org.maoco.milyoner.question.service.AdminService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.neo4j.Neo4jProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsPasswordService;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -40,22 +39,23 @@ public class SecurityConfig {
 
     @Value("${jwt.secret}")
     private String secretKey;
-    private UserDetailsService adminUserDetailService;
+    private UserDetailsService adminUserDetailsService;
 
     public SecurityConfig(GameJwtConverter gameJwtConverter,
-                          @Qualifier("adminUserDetailsServiceImpl") UserDetailsService adminUserDetailService) {
+                          @Qualifier("adminUserDetailsService") UserDetailsService adminUserDetailsService) {
         this.gameJwtConverter = gameJwtConverter;
-        this.adminUserDetailService = adminUserDetailService;
+        this.adminUserDetailsService = adminUserDetailsService;
     }
 
     @Bean
     public SecurityFilterChain adminFilterChain(HttpSecurity http) throws Exception {
         http
                 .securityMatcher("/admin/**")
+                .authenticationProvider(adminAuthenticationProvider())
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/admin/auth/login").permitAll()
+                        .requestMatchers("/admin/auth/login", "/admin/auth/register").permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
@@ -83,11 +83,15 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationProvider adminAuthenticationProvider(){
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setUserDetailsService(adminUserDetailService);
+    public AuthenticationProvider adminAuthenticationProvider() {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(adminUserDetailsService);
         provider.setPasswordEncoder(passwordEncoder());
         return provider;
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
     }
 
     @Bean
@@ -97,7 +101,6 @@ public class SecurityConfig {
 
     @Bean
     public JwtDecoder jwtDecoder() {
-        // 1. Gizli anahtar byte dizisine çevrilir
         SecretKey originalKey = new SecretKeySpec(secretKey.getBytes(), "HmacSHA256");
 
         return NimbusJwtDecoder.withSecretKey(originalKey).build();
