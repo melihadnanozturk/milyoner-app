@@ -24,8 +24,8 @@ public class AdminUserDetailsService implements UserDetailsService {
 
         return User.builder()
                 .username(admin.getUsername())
-                .password(admin.getPassword()) // DB'de Hash'li olmalı
-                .roles("ADMIN", "SUPER_USER") // Admin yetkileri
+                .password(admin.getPassword())
+                .roles("ADMIN", "SUPER_USER")
                 .build();
     }
 }

@@ -2,8 +2,8 @@ package org.maoco.milyoner.question.web.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.maoco.milyoner.common.security.TokenService;
-import org.maoco.milyoner.question.service.AdminService;
-import org.maoco.milyoner.question.web.dto.request.AdminRequest;
+import org.maoco.milyoner.question.service.UserService;
+import org.maoco.milyoner.question.web.dto.request.UserRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,15 +19,14 @@ import java.util.Map;
 @RestController
 @RequestMapping("/admin/auth")
 @RequiredArgsConstructor
-public class AdminController {
+public class AuthController {
 
     private final AuthenticationManager authenticationManager;
     private final TokenService tokenService;
-    private final AdminService adminService;
+    private final UserService userService;
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> adminLogin(@RequestBody AdminRequest request) {
-
+    public ResponseEntity<Map<String, String>> login(@RequestBody UserRequest request) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.username(), request.password())
         );
@@ -41,8 +40,8 @@ public class AdminController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody AdminRequest request) {
-        adminService.registerAdmin(request);
+    public ResponseEntity<String> register(@RequestBody UserRequest request) {
+        userService.registerUser(request);
         return ResponseEntity.ok("Admin kaydı başarıyla oluşturuldu.");
     }
 }
