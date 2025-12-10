@@ -1,6 +1,6 @@
 CREATE TYPE admin_roles AS ENUM(
     'ADMIN',
-    'READER');CD
+    'READER');
 
 CREATE TABLE admin_user
 (
