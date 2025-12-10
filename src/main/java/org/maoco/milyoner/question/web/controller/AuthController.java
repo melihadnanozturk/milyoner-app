@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/admin/auth")
+@RequestMapping("/panel/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
@@ -39,9 +39,15 @@ public class AuthController {
         return ResponseEntity.ok(Map.of("token", token));
     }
 
-    @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody UserRequest request) {
-        userService.registerUser(request);
+    @PostMapping("/admin/register")
+    public ResponseEntity<String> adminRegister(@RequestBody UserRequest request) {
+        userService.adminRegisterUser(request);
         return ResponseEntity.ok("Admin kaydı başarıyla oluşturuldu.");
+    }
+
+    @PostMapping("/user/register")
+    public ResponseEntity<String> userRegister(@RequestBody UserRequest request) {
+        userService.userRegisterUser(request);
+        return ResponseEntity.ok("User kaydı başarıyla oluşturuldu.");
     }
 }

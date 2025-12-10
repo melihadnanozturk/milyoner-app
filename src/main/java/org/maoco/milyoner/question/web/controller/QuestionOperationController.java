@@ -13,7 +13,7 @@ import org.maoco.milyoner.question.web.dto.response.UpdateQuestionResponse;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/admin/questions")
+@RequestMapping("/panel/questions/operation")
 @RequiredArgsConstructor
 public class QuestionOperationController {
 

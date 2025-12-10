@@ -12,7 +12,7 @@ import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class AdminEntity {
+public class UserEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

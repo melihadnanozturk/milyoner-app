@@ -1,7 +1,7 @@
 package org.maoco.milyoner.question.service;
 
-import org.maoco.milyoner.question.data.entity.AdminEntity;
-import org.maoco.milyoner.question.data.repository.AdminRepository;
+import org.maoco.milyoner.question.data.entity.UserEntity;
+import org.maoco.milyoner.question.data.repository.UserRepository;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -11,15 +11,15 @@ import org.springframework.stereotype.Service;
 @Service("adminUserDetailsService")
 public class AdminUserDetailsService implements UserDetailsService {
 
-    private final AdminRepository adminRepository;
+    private final UserRepository userRepository;
 
-    public AdminUserDetailsService(AdminRepository adminRepository) {
-        this.adminRepository = adminRepository;
+    public AdminUserDetailsService(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        AdminEntity admin = adminRepository.findByUsername(username)
+        UserEntity admin = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Admin bulunamadı"));
 
         return User.builder()
