@@ -16,7 +16,7 @@ public class GamePersistenceService {
     }
 
     public GameEntity createNewUser(Game game) {
-        GameEntity entity = new GameEntity(game.getGameId(),game.getUsername(), game.getQuestionLevel(), game.getGameState());
+        GameEntity entity = new GameEntity(game.getGameId(), game.getUsername(), game.getQuestionLevel(), game.getGameState());
         return gameRepository.save(entity);
     }
 
@@ -29,8 +29,13 @@ public class GamePersistenceService {
         return gameRepository.save(gameEntity);
     }
 
-    public GameEntity findByUsername(String id) {
-        return gameRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("User not found by id : " + id));
+    public GameEntity findByUsername(String username) {
+        return gameRepository.findByUsername(username)
+                .orElseThrow(() -> new NotFoundException("User not found by id : " + username));
+    }
+
+    public GameEntity findByUsernameAndId(String username, String id) {
+        return gameRepository.findByUsernameAndId(username, id)
+                .orElseThrow(() -> new NotFoundException("User not found by id and username : " + id + username));
     }
 }

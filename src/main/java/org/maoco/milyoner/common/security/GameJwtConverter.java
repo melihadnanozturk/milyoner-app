@@ -1,5 +1,6 @@
 package org.maoco.milyoner.common.security;
 
+import org.maoco.milyoner.gameplay.data.entity.GameEntity;
 import org.maoco.milyoner.gameplay.service.GamePersistenceService;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
@@ -18,12 +19,11 @@ public class GameJwtConverter implements Converter<Jwt, AbstractAuthenticationTo
     @Override
     public AbstractAuthenticationToken convert(Jwt token) {
         String subject = token.getSubject();
-
         String gameId = token.getClaims().get("gameId").toString();
 
-        GameSessionContext gameSessionContext = new GameSessionContext(subject, gameId);
+        GameEntity gameEntity = gamePersistenceService.findByUsernameAndId(subject, gameId);
+        GameSessionContext gameSessionContext = new GameSessionContext(gameEntity.getUsername(), gameEntity.getId());
 
-        System.out.println(subject);
         return new GameAuthenticationToken(null, gameSessionContext, token);
     }
 }
