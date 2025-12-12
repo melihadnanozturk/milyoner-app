@@ -16,7 +16,7 @@ public class Question {
     private Long id;
     private String questionText;
     private Long questionLevel;
-    private Boolean isActivate; // ??
+    private Boolean isActivate;
     private List<Answer> answers;
 
     public static Question of(QuestionEntity entity) {

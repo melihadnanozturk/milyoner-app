@@ -62,17 +62,21 @@ public class AnswerOperationService {
 
     public String deleteAnswer(Long answerId) {
         AnswerEntity answerEntity = repository.findById(answerId)
-                .orElseThrow(() -> new NotFoundException("Answer not found with id: " + answerId));
+                .orElseThrow(() -> new NotFoundException("Record not found with id: " + answerId));
 
-        int activateAnswer = answerEntity.getQuestion().getAnswers().stream().filter(AnswerEntity::getIsActivate).toList().size();
+        QuestionEntity questionEntity = answerEntity.getQuestion();
+        int activateAnswer = questionEntity.getAnswers().stream().filter(AnswerEntity::getIsActivate).toList().size();
 
         if (answerEntity.getIsActivate()) {
             if (answerEntity.getIsCorrect() || activateAnswer == 4) {
-                questionOperationService.setDeactivate(answerEntity.getQuestion().getId());
+                questionOperationService.setDeactivate(questionEntity.getId());
+                questionEntity.removeAnswer(answerEntity);
+                repository.deleteById(answerId);
+                return "Question has been deactivated: " + answerId;
             }
         }
 
-        answerEntity.getQuestion().removeAnswer(answerEntity);
+        questionEntity.removeAnswer(answerEntity);
         repository.deleteById(answerId);
         return "Record was deleted by id: " + answerId;
     }

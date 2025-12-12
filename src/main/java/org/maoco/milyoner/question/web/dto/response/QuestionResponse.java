@@ -11,6 +11,7 @@ public class QuestionResponse {
 
     private Long questionId;
     private String questionText;
+    private Boolean isActivate;
     private Long questionLevel;
     private List<AnswerResponse> answers;
 }
