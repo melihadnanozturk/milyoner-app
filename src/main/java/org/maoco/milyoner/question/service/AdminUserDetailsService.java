@@ -20,12 +20,12 @@ public class AdminUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         UserEntity admin = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Admin bulunamadı"));
+                .orElseThrow(() -> new UsernameNotFoundException("User not founded"));
 
         return User.builder()
                 .username(admin.getUsername())
                 .password(admin.getPassword())
-                .roles("ADMIN", "SUPER_USER")
+                .roles(admin.getUserRoles().toString())
                 .build();
     }
 }
