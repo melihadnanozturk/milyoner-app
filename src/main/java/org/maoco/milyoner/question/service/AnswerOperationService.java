@@ -72,7 +72,8 @@ public class AnswerOperationService {
             }
         }
 
-        repository.delete(answerEntity);
+        answerEntity.getQuestion().removeAnswer(answerEntity);
+        repository.deleteById(answerId);
         return "Record was deleted by id: " + answerId;
     }
 

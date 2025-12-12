@@ -1,17 +1,15 @@
 package org.maoco.milyoner.question.data.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.maoco.milyoner.question.domain.Question;
 
 import java.util.List;
 
 @Entity
 @Table(name = "question")
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -30,8 +28,20 @@ public class QuestionEntity {
     @Column(name = "is_activate")
     private Boolean isActivate;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "question")
+    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE},
+            mappedBy = "question",
+            orphanRemoval = true)
     private List<AnswerEntity> answers;
+
+    public void removeAnswer(AnswerEntity answer) {
+        if (answer == null) {
+            return;
+        }
+        if (answers != null) {
+            answers.remove(answer);
+        }
+        answer.setQuestion(null);
+    }
 
     public static QuestionEntity of(Question question) {
         return QuestionEntity.builder()
