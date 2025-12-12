@@ -26,7 +26,7 @@ public class UserEntity {
     private String password;
 
     @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "admin_roles",name = "roles")
+    @Column(columnDefinition = "admin_roles", name = "roles")
     @JdbcType(PostgreSQLEnumJdbcType.class)
     private UserRoles userRoles;
 }

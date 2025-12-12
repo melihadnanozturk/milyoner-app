@@ -8,8 +8,8 @@ import org.maoco.milyoner.question.data.entity.QuestionEntity;
 import org.maoco.milyoner.question.data.repository.QuestionRepository;
 import org.maoco.milyoner.question.domain.Question;
 import org.maoco.milyoner.question.service.exception.CreateAnswerException;
-import org.maoco.milyoner.question.web.dto.request.CreateQuestionAnswer;
 import org.maoco.milyoner.question.web.dto.request.CreateNewQuestionRequest;
+import org.maoco.milyoner.question.web.dto.request.CreateQuestionAnswer;
 import org.maoco.milyoner.question.web.dto.request.UpdateQuestionRequest;
 import org.springframework.stereotype.Service;
 

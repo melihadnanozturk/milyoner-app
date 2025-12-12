@@ -2,7 +2,6 @@ package org.maoco.milyoner.common;
 
 import lombok.Builder;
 import lombok.Data;
-import org.springframework.boot.autoconfigure.graphql.GraphQlProperties;
 import org.springframework.http.HttpStatus;
 
 @Data

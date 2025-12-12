@@ -5,9 +5,9 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum CommonError implements Error{
+public enum CommonError implements Error {
 
-    NOT_FOUND(2001,"Record not exists","Kayıt bulunamadı");
+    NOT_FOUND(2001, "Record not exists", "Kayıt bulunamadı");
 
     private final Integer code;
     private final String message;

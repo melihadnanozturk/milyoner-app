@@ -4,14 +4,14 @@ import lombok.Getter;
 import org.maoco.milyoner.common.error.CommonError;
 
 @Getter
-public class NotFoundException extends MilyonerException{
+public class NotFoundException extends MilyonerException {
 
-    public NotFoundException(){
+    public NotFoundException() {
         super(CommonError.NOT_FOUND);
     }
 
-    public NotFoundException(String message){
-        super(CommonError.NOT_FOUND,message);
+    public NotFoundException(String message) {
+        super(CommonError.NOT_FOUND, message);
     }
 
 }

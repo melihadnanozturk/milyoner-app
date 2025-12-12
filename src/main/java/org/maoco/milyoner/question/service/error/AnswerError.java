@@ -8,7 +8,7 @@ import org.maoco.milyoner.common.error.Error;
 @RequiredArgsConstructor
 public enum AnswerError implements Error {
 
-    MULTIPLE_TRUTH_ERROR(2000,"There can be only one true answer","Bir sorunun birden fazla doğru yanıtı olamaz");
+    MULTIPLE_TRUTH_ERROR(2000, "There can be only one true answer", "Bir sorunun birden fazla doğru yanıtı olamaz");
 
     private final Integer code;
     private final String message;

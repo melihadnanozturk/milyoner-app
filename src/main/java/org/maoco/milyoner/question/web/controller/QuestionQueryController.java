@@ -2,7 +2,6 @@ package org.maoco.milyoner.question.web.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.maoco.milyoner.common.ApiResponse;
-import org.maoco.milyoner.question.data.entity.QuestionEntity;
 import org.maoco.milyoner.question.domain.Question;
 import org.maoco.milyoner.question.service.QuestionQueryService;
 import org.maoco.milyoner.question.web.dto.request.QuestionQueryRequest;
