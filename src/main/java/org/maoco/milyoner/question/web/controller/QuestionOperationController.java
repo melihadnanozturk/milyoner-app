@@ -8,6 +8,7 @@ import org.maoco.milyoner.question.service.QuestionOperationService;
 import org.maoco.milyoner.question.web.dto.request.CreateNewQuestionRequest;
 import org.maoco.milyoner.question.web.dto.request.UpdateQuestionRequest;
 import org.maoco.milyoner.question.web.dto.response.AnswerResponse;
+import org.maoco.milyoner.question.web.dto.response.QuestionDetailResponse;
 import org.maoco.milyoner.question.web.dto.response.QuestionResponse;
 import org.maoco.milyoner.question.web.dto.response.UpdateQuestionResponse;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +24,7 @@ public class QuestionOperationController {
     public ApiResponse<QuestionResponse> createNewQuestion(@RequestBody @Valid CreateNewQuestionRequest request) {
         Question question = operationService.createNewQuestion(request);
 
-        QuestionResponse data = QuestionResponse.builder()
+        QuestionResponse data = QuestionDetailResponse.builder()
                 .questionId(question.getId())
                 .questionText(question.getQuestionText())
                 .questionLevel(question.getQuestionLevel())

@@ -20,7 +20,7 @@ public class QuestionQueryController {
 
     private final QuestionQueryService operationService;
 
-    @GetMapping
+    @PostMapping
     public ApiResponse<List<QuestionResponse>> getAllQuestions(@RequestBody QuestionQueryRequest request) {
         Collection<Question> questions = operationService.getAllQuestions(request);
 
