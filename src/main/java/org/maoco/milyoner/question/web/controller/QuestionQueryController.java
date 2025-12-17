@@ -6,6 +6,7 @@ import org.maoco.milyoner.question.domain.Question;
 import org.maoco.milyoner.question.service.QuestionQueryService;
 import org.maoco.milyoner.question.web.dto.request.QuestionQueryRequest;
 import org.maoco.milyoner.question.web.dto.response.AnswerResponse;
+import org.maoco.milyoner.question.web.dto.response.QuestionDetailResponse;
 import org.maoco.milyoner.question.web.dto.response.QuestionResponse;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,36 +20,22 @@ public class QuestionQueryController {
 
     private final QuestionQueryService operationService;
 
-
     @GetMapping
     public ApiResponse<List<QuestionResponse>> getAllQuestions(@RequestBody QuestionQueryRequest request) {
         Collection<Question> questions = operationService.getAllQuestions(request);
 
         List<QuestionResponse> data = questions.stream()
-                .map(question -> QuestionResponse.builder()
-                        .questionId(question.getId())
-                        .questionText(question.getQuestionText())
-                        .isActivate(question.getIsActivate())
-                        .questionLevel(question.getQuestionLevel())
-                        .answers(question.getAnswers().stream()
-                                .map(answer -> AnswerResponse.builder()
-                                        .answerId(answer.getId())
-                                        .isCorrect(answer.getIsCorrect())
-                                        .isActivate(answer.getIsActivate())
-                                        .answerText(answer.getAnswerText())
-                                        .build())
-                                .toList())
-                        .build())
+                .map(this::mapToQuestionResponse)
                 .toList();
 
         return ApiResponse.success(data);
     }
 
     @GetMapping("/{id}")
-    public ApiResponse<QuestionResponse> getQuestionsById(@PathVariable Long id) {
+    public ApiResponse<QuestionDetailResponse> getQuestionsById(@PathVariable Long id) {
         Question question = operationService.getQuestionById(id);
 
-        QuestionResponse data = QuestionResponse.builder()
+        QuestionDetailResponse data = QuestionDetailResponse.builder()
                 .questionId(question.getId())
                 .questionText(question.getQuestionText())
                 .isActivate(question.getIsActivate())
@@ -62,5 +49,14 @@ public class QuestionQueryController {
                 .build();
 
         return ApiResponse.success(data);
+    }
+
+    private QuestionResponse mapToQuestionResponse(Question question) {
+        return QuestionResponse.builder()
+                .questionId(question.getId())
+                .questionText(question.getQuestionText())
+                .isActivate(question.getIsActivate())
+                .questionLevel(question.getQuestionLevel())
+                .build();
     }
 }
