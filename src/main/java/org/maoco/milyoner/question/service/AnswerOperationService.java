@@ -45,9 +45,7 @@ public class AnswerOperationService {
 
 
     public Answer updateAnswer(UpdateAnswerRequest request) throws BadRequestException {
-        throw new BadRequestException();
-
-        /*AnswerEntity entity = repository.findById(request.getAnswerId())
+        AnswerEntity entity = repository.findById(request.getAnswerId())
                 .orElseThrow(() -> new NotFoundException("Answer not found with id: " + request.getAnswerId()));
 
         this.checkAnswerForUpdate(entity, request);
@@ -57,7 +55,7 @@ public class AnswerOperationService {
         entity.setIsActivate(request.getIsActive());
 
         AnswerEntity saved = repository.save(entity);
-        return Answer.of(saved);*/
+        return Answer.of(saved);
     }
 
     public String deleteAnswer(Long answerId) {
@@ -81,22 +79,45 @@ public class AnswerOperationService {
         return "Record was deleted by id: " + answerId;
     }
 
-    //todo: burası düzeltilecek
-    /*private void checkAnswerForUpdate(AnswerEntity entity, AnswerRequest request) {
-        List<AnswerEntity> answers = entity.getQuestion().getAnswers();
+    private void checkAnswerForUpdate(AnswerEntity entity, UpdateAnswerRequest request) {
+        QuestionEntity question = entity.getQuestion();
+        List<AnswerEntity> allAnswers = question.getAnswers();
 
-        int activateAnswerCount = answers.stream()
-                .filter(AnswerEntity::getIsActivate).toList().size();
+        boolean newIsActive = request.getIsActive();
+        boolean newIsCorrect = request.getIsCorrect();
 
-        if (!entity.getIsActivate().equals(request.getIsActive())){
+        List<AnswerEntity> otherAnswers = allAnswers.stream()
+                .filter(answer -> !answer.getId().equals(entity.getId()))
+                .toList();
 
+        long otherActiveAnswers = otherAnswers.stream()
+                .filter(AnswerEntity::getIsActivate)
+                .count();
+
+        long otherActiveCorrectAnswers = otherAnswers.stream()
+                .filter(answer -> answer.getIsActivate() && answer.getIsCorrect())
+                .count();
+
+        long otherActiveWrongAnswers = otherAnswers.stream()
+                .filter(answer -> answer.getIsActivate() && !answer.getIsCorrect())
+                .count();
+
+        long activeAnswersAfterUpdate = otherActiveAnswers + (newIsActive ? 1 : 0);
+        long correctAnswersAfterUpdate = otherActiveCorrectAnswers + (newIsActive && newIsCorrect ? 1 : 0);
+        long wrongAnswersAfterUpdate = otherActiveWrongAnswers + (newIsActive && !newIsCorrect ? 1 : 0);
+
+        if (activeAnswersAfterUpdate < 4) {
+            throw new AnswerException("Each question must have at least 4 active answers. Please check the answer count.");
         }
 
-        if (request.getIsActive()) {
-            if request.getIsCorrect() {}
+        if (correctAnswersAfterUpdate != 1) {
+            throw new AnswerException("Each question must have exactly one correct answer. Please check the answers.");
         }
 
-    }*/
+        if (wrongAnswersAfterUpdate < 3) {
+            throw new AnswerException("Each question must have at least 3 wrong answers. Please check the answers.");
+        }
+    }
 
     private void checkAnswerForNewCreate(CreateNewAnswerRequest request, Question question) {
         if (!request.getIsActive()) {

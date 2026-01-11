@@ -51,5 +51,3 @@ public class QuestionEntity {
                 .build();
     }
 }
-
-//todo: Sorularda aktif pasif field ekleyebilirsin
