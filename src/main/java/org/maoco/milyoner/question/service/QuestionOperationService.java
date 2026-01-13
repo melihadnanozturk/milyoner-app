@@ -22,7 +22,10 @@ public class QuestionOperationService {
     private final QuestionRepository questionRepository;
 
     public Question createNewQuestion(CreateNewQuestionRequest request) {
-        this.checkTrueAnswerNumber(request.getAnswers());
+
+        if (request.getActivate()) {
+            this.checkTrueAnswerNumber(request.getAnswers());
+        }
 
         QuestionEntity entity = new QuestionEntity();
         entity.setQuestionText(request.getQuestionText());
@@ -35,7 +38,7 @@ public class QuestionOperationService {
                 .toList();
 
         entity.setAnswers(answerEntities);
-        entity.setIsActivate(true);
+        entity.setIsActivate(request.getActivate());
 
         QuestionEntity saved = questionRepository.save(entity);
 
