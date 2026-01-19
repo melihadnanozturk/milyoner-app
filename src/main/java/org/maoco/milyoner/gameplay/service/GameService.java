@@ -134,7 +134,7 @@ public class GameService {
                     .build();
         }
 
-        if (gameEntity.getQuestionLevel() == 10L) {
+        if (gameEntity.getQuestionLevel() == 3L) {
             gameEntity.setGameState(GameState.WON);
 
             GameEntity updatedGamer = gamePersistenceService.saveGamer(gameEntity);

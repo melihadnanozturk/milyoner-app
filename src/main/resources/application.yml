@@ -2,9 +2,9 @@ spring:
   application:
     name: milyoner
   datasource:
-    url: jdbc:postgresql://localhost:5432/milyoner?currentSchema=game
-    username: postgres
-    password: postgres
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     #  jpa:
     #    hibernate:
     #      ddl-auto: update # todo : will be change
@@ -19,5 +19,5 @@ spring:
     create-schemas: true
 
 jwt:
-  secret: 3e217b5210de6eedfca87ea615b8c5fbb17cecb0f5bec50555176d191060f66f
-  expiration: 3600000
+  secret: ${JWT_SECRET}
+  expiration: ${JWT_EXPIRATION}
