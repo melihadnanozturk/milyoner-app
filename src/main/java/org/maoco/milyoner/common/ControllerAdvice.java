@@ -1,8 +1,10 @@
 package org.maoco.milyoner.common;
 
 
+import jakarta.servlet.http.HttpServletResponse;
 import org.maoco.milyoner.common.exception.AnswerException;
 import org.maoco.milyoner.common.exception.NotFoundException;
+import org.maoco.milyoner.common.exception.RateLimitException;
 import org.maoco.milyoner.question.service.exception.CreateAnswerException;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
@@ -46,6 +48,14 @@ public class ControllerAdvice {
         String message = getValidationMessage(e.getBindingResult());
 
         return ApiResponse.failed(message, HttpStatus.BAD_REQUEST);
+    }
+
+    @ResponseStatus(HttpStatus.TOO_MANY_REQUESTS)
+    @ExceptionHandler(RateLimitException.class)
+    public ApiResponse<String> handleRateLimitException(RateLimitException e, HttpServletResponse response) {
+        response.setHeader("Retry-After", String.valueOf(e.getRetryAfterSeconds()));
+        
+        return ApiResponse.failed(e.getMessage(), HttpStatus.TOO_MANY_REQUESTS);
     }
 
     private String getValidationMessage(BindingResult result) {

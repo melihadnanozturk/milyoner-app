@@ -1,6 +1,8 @@
 package org.maoco.milyoner.question.web.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.maoco.milyoner.common.annotation.RateLimit;
 import org.maoco.milyoner.common.security.TokenService;
 import org.maoco.milyoner.question.domain.User;
 import org.maoco.milyoner.question.service.UserService;
@@ -31,8 +33,9 @@ public class AuthController {
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
 
+    @RateLimit(limit = 5, windowMinutes = 1)
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody UserRequest request) {
+    public ResponseEntity<?> login(@RequestBody @Valid UserRequest request) {
         String token = this.createToken(request.username(), request.password());
 
         return ResponseEntity
@@ -40,16 +43,18 @@ public class AuthController {
                 .body(token);
     }
 
+    @RateLimit(limit = 3, windowMinutes = 60)
     @PostMapping("/admin/register")
-    public ResponseEntity<String> adminRegister(@RequestBody UserRequest request) {
+    public ResponseEntity<String> adminRegister(@RequestBody @Valid UserRequest request) {
         User user = userService.userRegister(request, true);
         String token = this.createToken(user.username(), request.password());
 
         return ResponseEntity.ok().body(token);
     }
 
+    @RateLimit(limit = 3, windowMinutes = 60)
     @PostMapping("/user/register")
-    public ResponseEntity<String> userRegister(@RequestBody UserRequest request) {
+    public ResponseEntity<String> userRegister(@RequestBody @Valid UserRequest request) {
         User user = userService.userRegister(request, false);
         String token = this.createToken(user.username(), request.password());
 

@@ -18,6 +18,20 @@ spring:
     schemas: game
     create-schemas: true
 
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+
 jwt:
   secret: ${JWT_SECRET}
   expiration: ${JWT_EXPIRATION}
+
+rate-limit:
+  login:
+    limit: 5
+    window-minutes: 1
+  register:
+    limit: 3
+    window-hours: 1
