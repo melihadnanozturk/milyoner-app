@@ -1,6 +1,8 @@
 package org.maoco.milyoner.question.service;
 
 import lombok.RequiredArgsConstructor;
+import org.maoco.milyoner.common.error.CommonError;
+import org.maoco.milyoner.common.error.PanelError;
 import org.maoco.milyoner.common.exception.AnswerException;
 import org.maoco.milyoner.common.exception.NotFoundException;
 import org.maoco.milyoner.question.data.entity.AnswerEntity;
@@ -46,7 +48,8 @@ public class QuestionOperationService {
     }
 
     public Question updateQuestion(UpdateQuestionRequest request) {
-        QuestionEntity entity = questionRepository.findById(request.getQuestionId()).orElseThrow(() -> new NotFoundException("Question not found"));
+        QuestionEntity entity = questionRepository.findById(request.getQuestionId())
+                .orElseThrow(() -> new NotFoundException(CommonError.NOT_FOUND.getMessage()));
 
         this.checkQuestion(request, entity);
 
@@ -60,17 +63,18 @@ public class QuestionOperationService {
 
     public void setDeactivate(Long id) {
         QuestionEntity entity = questionRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Question not found with id: " + id));
+                .orElseThrow(() -> new NotFoundException(CommonError.NOT_FOUND.getMessage()));
 
         entity.setIsActivate(false);
         questionRepository.save(entity);
     }
 
     public String deleteQuestion(Long questionId) {
-        questionRepository.findById(questionId).orElseThrow(() -> new NotFoundException("Question not found"));
+        questionRepository.findById(questionId)
+                .orElseThrow(() -> new NotFoundException(CommonError.NOT_FOUND.getMessage()));
 
         questionRepository.deleteById(questionId);
-        return String.format("Question with id %d deleted", questionId);
+        return "Question deleted successfully";
     }
 
     private void checkTrueAnswerNumber(List<CreateQuestionAnswer> answers) {
@@ -86,11 +90,11 @@ public class QuestionOperationService {
             int correctAnswerNumber = activateAnswers.stream().filter(AnswerEntity::getIsCorrect).toList().size();
 
             if (correctAnswerNumber != 1) {
-                throw new AnswerException("Soruyu aktifleştirirken sorun oldu. Her sorunun sadece bir tane doğru cevabı olmak zorundadır. Lütfen cevapları kontrol edin");
+                throw new AnswerException(PanelError.CORRECT_ANSWER_NUMBER_ERROR.getMessage());
             }
 
             if (activeAnswerNumber < 4) {
-                throw new AnswerException("Her sorunun minimum 4 tane cevabı olmak zorundadır. Lütfen cevap sayıları kontrol edin");
+                throw new AnswerException(PanelError.ACTIVE_ANSWER_NUMBER_ERROR.getMessage());
             }
         }
 

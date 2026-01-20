@@ -5,9 +5,9 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum CommonError implements Error {
+public enum AuthError implements Error {
 
-    NOT_FOUND(2001, "Record not found", "Kayıt bulunamadı");
+    USER_NOT_FOUND(2001, "User not found", "Kullanıcı bulunamadı");
 
     private final Integer code;
     private final String message;

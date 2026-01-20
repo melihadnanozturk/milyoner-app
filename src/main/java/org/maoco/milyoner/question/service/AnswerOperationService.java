@@ -1,6 +1,8 @@
 package org.maoco.milyoner.question.service;
 
 import org.apache.coyote.BadRequestException;
+import org.maoco.milyoner.common.error.CommonError;
+import org.maoco.milyoner.common.error.PanelError;
 import org.maoco.milyoner.common.exception.AnswerException;
 import org.maoco.milyoner.common.exception.NotFoundException;
 import org.maoco.milyoner.question.data.entity.AnswerEntity;
@@ -46,7 +48,7 @@ public class AnswerOperationService {
 
     public Answer updateAnswer(UpdateAnswerRequest request) throws BadRequestException {
         AnswerEntity entity = repository.findById(request.getAnswerId())
-                .orElseThrow(() -> new NotFoundException("Answer not found with id: " + request.getAnswerId()));
+                .orElseThrow(() -> new NotFoundException(CommonError.NOT_FOUND.getMessage()));
 
         this.checkAnswerForUpdate(entity, request);
 
@@ -60,7 +62,7 @@ public class AnswerOperationService {
 
     public String deleteAnswer(Long answerId) {
         AnswerEntity answerEntity = repository.findById(answerId)
-                .orElseThrow(() -> new NotFoundException("Record not found with id: " + answerId));
+                .orElseThrow(() -> new NotFoundException(CommonError.NOT_FOUND.getMessage()));
 
         QuestionEntity questionEntity = answerEntity.getQuestion();
         int activateAnswer = questionEntity.getAnswers().stream().filter(AnswerEntity::getIsActivate).toList().size();
@@ -70,13 +72,13 @@ public class AnswerOperationService {
                 questionOperationService.setDeactivate(questionEntity.getId());
                 questionEntity.removeAnswer(answerEntity);
                 repository.deleteById(answerId);
-                return "Question has been deactivated: " + answerId;
+                return "Question has been deactivated";
             }
         }
 
         questionEntity.removeAnswer(answerEntity);
         repository.deleteById(answerId);
-        return "Record was deleted by id: " + answerId;
+        return "Record was deleted successfully";
     }
 
     private void checkAnswerForUpdate(AnswerEntity entity, UpdateAnswerRequest request) {
@@ -107,15 +109,15 @@ public class AnswerOperationService {
         long wrongAnswersAfterUpdate = otherActiveWrongAnswers + (newIsActive && !newIsCorrect ? 1 : 0);
 
         if (activeAnswersAfterUpdate < 4) {
-            throw new AnswerException("Each question must have at least 4 active answers. Please check the answer count.");
+            throw new AnswerException(PanelError.ACTIVE_ANSWER_NUMBER_ERROR.getMessage());
         }
 
         if (correctAnswersAfterUpdate != 1) {
-            throw new AnswerException("Each question must have exactly one correct answer. Please check the answers.");
+            throw new AnswerException(PanelError.CORRECT_ANSWER_NUMBER_ERROR.getMessage());
         }
 
         if (wrongAnswersAfterUpdate < 3) {
-            throw new AnswerException("Each question must have at least 3 wrong answers. Please check the answers.");
+            throw new AnswerException(PanelError.WRONG_ANSWER_NUMBER_ERROR.getMessage());
         }
     }
 
@@ -128,7 +130,7 @@ public class AnswerOperationService {
             List<Answer> answers = question.getAnswers().stream().filter(Answer::getIsCorrect).toList();
 
             if (!answers.isEmpty()) {
-                throw new AnswerException("Her sorunun 1 tane doğru cevabı olmak zorunda");
+                throw new AnswerException(PanelError.CORRECT_ANSWER_NUMBER_ERROR.getMessage());
             }
         }
     }

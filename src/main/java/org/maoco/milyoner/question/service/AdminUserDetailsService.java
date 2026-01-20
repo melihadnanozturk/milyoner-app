@@ -1,5 +1,6 @@
 package org.maoco.milyoner.question.service;
 
+import org.maoco.milyoner.common.error.AuthError;
 import org.maoco.milyoner.question.data.entity.UserEntity;
 import org.maoco.milyoner.question.data.repository.UserRepository;
 import org.springframework.security.core.userdetails.User;
@@ -20,7 +21,7 @@ public class AdminUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         UserEntity admin = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not founded"));
+                .orElseThrow(() -> new UsernameNotFoundException(AuthError.USER_NOT_FOUND.getMessage()));
 
         return User.builder()
                 .username(admin.getUsername())

@@ -122,6 +122,8 @@ public class SecurityConfig {
 
         cfg.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept", "Origin"));
 
+        cfg.setExposedHeaders(List.of("Retry-After"));
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", cfg);
         return source;

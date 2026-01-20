@@ -79,7 +79,7 @@ public class GameService {
                 .collect(Collectors.collectingAndThen(Collectors.toList(),
                         list -> {
                             if (list.size() < WRONG_ANSWER_LIMITS + 1) {
-                                throw new NotFoundException("There is not enough answer in question with questionId: " + question.getQuestionId());
+                                throw new NotFoundException("There is not enough answer in question");
                             }
                             return list;
                         }));
@@ -90,13 +90,13 @@ public class GameService {
                 .findFirst()
                 .map(List::of)
                 //todo : new exception
-                .orElseThrow(() -> new NotFoundException("There is no enough correct answer in question questionId: " + question.getQuestionId()));
+                .orElseThrow(() -> new NotFoundException("There is no enough correct answer in question"));
 
         List<Answer> wrongAnswers = activateAnswers.stream()
                 .filter(answer -> !answer.getIsCorrect())
                 .collect(Collectors.collectingAndThen(Collectors.toList(), list -> {
                             if (list.size() < WRONG_ANSWER_LIMITS) {
-                                new NotFoundException("There is not enough wrong answer in question with questionId: " + question.getQuestionId());
+                                throw new NotFoundException("There is not enough wrong answer in question");
                             }
                             Collections.shuffle(list);
                             return list.stream().limit(WRONG_ANSWER_LIMITS).collect(Collectors.toList());

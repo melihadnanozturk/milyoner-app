@@ -1,6 +1,7 @@
 package org.maoco.milyoner.question.service;
 
 import lombok.RequiredArgsConstructor;
+import org.maoco.milyoner.common.error.CommonError;
 import org.maoco.milyoner.common.exception.NotFoundException;
 import org.maoco.milyoner.question.data.entity.AnswerEntity;
 import org.maoco.milyoner.question.data.entity.QuestionEntity;
@@ -36,7 +37,7 @@ public class QuestionQueryService {
 
     public Question getQuestionById(Long id) {
         QuestionEntity entity = questionRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Question not found with id: " + id));
+                .orElseThrow(() -> new NotFoundException(CommonError.NOT_FOUND.getMessage()));
 
         return Question.of(entity);
     }
@@ -44,13 +45,13 @@ public class QuestionQueryService {
     //for gamePlay
     public Question getQuestionByLevel(Long level) {
         QuestionEntity entity = questionRepository.findByQuestionLevel(level, true)
-                .orElseThrow(() -> new NotFoundException("Question not found with level: " + level));
+                .orElseThrow(() -> new NotFoundException(CommonError.NOT_FOUND.getMessage()));
 
         return Question.of(entity);
     }
 
     public AnswerEntity handleAnswer(Long questionId, Long answerId) {
         return answerRepository.findByIdAndQuestionIdAndIsActivate(answerId, questionId, true)
-                .orElseThrow(() -> new NotFoundException("Answer not found with questionId :" + questionId + " and answerId: " + answerId));
+                .orElseThrow(() -> new NotFoundException(CommonError.NOT_FOUND.getMessage()));
     }
 }

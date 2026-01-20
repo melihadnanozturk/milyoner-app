@@ -22,7 +22,7 @@ public class GamePersistenceService {
 
     public GameEntity findById(String id) {
         return gameRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("User not found by id : " + id));
+                .orElseThrow(() -> new NotFoundException("Game not found"));
     }
 
     public GameEntity saveGamer(GameEntity gameEntity) {
@@ -31,11 +31,11 @@ public class GamePersistenceService {
 
     public GameEntity findByUsername(String username) {
         return gameRepository.findByUsername(username)
-                .orElseThrow(() -> new NotFoundException("User not found by id : " + username));
+                .orElseThrow(() -> new NotFoundException("Game not found"));
     }
 
     public GameEntity findByUsernameAndId(String username, String id) {
         return gameRepository.findByUsernameAndId(username, id)
-                .orElseThrow(() -> new NotFoundException("User not found by id and username : " + id + username));
+                .orElseThrow(() -> new NotFoundException("Game not found"));
     }
 }

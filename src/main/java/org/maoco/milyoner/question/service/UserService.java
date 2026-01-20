@@ -43,7 +43,7 @@ public class UserService {
     private void checkUserName(String username) {
         if (userRepository.findByUsername(username).isPresent()) {
             //todo: must Exception edited
-            throw new RuntimeException("Verilen isimde Admin bulunmaktadir");
+            throw new RuntimeException("Username already exists");
         }
     }
 }
