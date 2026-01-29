@@ -12,6 +12,8 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql
+    networks:
+      - milyoner-network
 
   adminer:
     image: adminer:latest
@@ -21,6 +23,8 @@ services:
       - "8085:8080"
     depends_on:
       - postgres
+    networks:
+      - milyoner-network
 
   redis:
     image: redis:latest
@@ -31,6 +35,8 @@ services:
     volumes:
       - redis_data:/data
     command: redis-server --appendonly yes
+    networks:
+      - milyoner-network
 
   app:
     build:
@@ -53,8 +59,13 @@ services:
       - postgres
       - redis
     networks:
-      - default
+      - milyoner-network
 
 volumes:
   postgres_data:
   redis_data:
+
+networks:
+  milyoner-network:
+    name: milyoner-shared-network
+    driver: bridge
