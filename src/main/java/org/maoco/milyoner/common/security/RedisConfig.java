@@ -9,8 +9,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
+import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+
+import java.time.Duration;
 
 /**
  * Redis configuration for rate limiting with Bucket4j.
@@ -27,15 +30,42 @@ public class RedisConfig {
     @Value("${spring.data.redis.password:}")
     private String redisPassword;
     
+    @Value("${redis.ssl:false}")
+    private boolean sslEnabled;
+    
+    private void logRedisConfig(String message, String data) {
+        try {
+            java.io.FileWriter fw = new java.io.FileWriter("/home/adnan/Desktop/projects/milyoner-app/.cursor/debug.log", true);
+            String logEntry = String.format("{\"sessionId\":\"debug-session\",\"runId\":\"run1\",\"hypothesisId\":\"A\",\"location\":\"RedisConfig.java:35\",\"message\":\"%s\",\"data\":\"%s\",\"timestamp\":%d}\n", 
+                message.replace("\"", "\\\""), data.replace("\"", "\\\""), System.currentTimeMillis());
+            fw.write(logEntry);
+            fw.close();
+        } catch (Exception e) {}
+    }
+    
     @Bean
     public LettuceConnectionFactory redisConnectionFactory() {
+        String configData = String.format("host=%s,port=%d,ssl=%s,hasPassword=%s", 
+            redisHost, redisPort, sslEnabled, (redisPassword != null && !redisPassword.isEmpty()));
+        logRedisConfig("RedisConfig initialization", configData);
+        // #endregion
         RedisStandaloneConfiguration config = new RedisStandaloneConfiguration();
         config.setHostName(redisHost);
         config.setPort(redisPort);
         if (redisPassword != null && !redisPassword.isEmpty()) {
             config.setPassword(redisPassword);
         }
-        return new LettuceConnectionFactory(config);
+        
+        LettuceClientConfiguration.LettuceClientConfigurationBuilder builder = 
+            LettuceClientConfiguration.builder()
+                .commandTimeout(Duration.ofSeconds(2));
+        
+        if (sslEnabled) {
+            builder.useSsl();
+        }
+        
+        LettuceClientConfiguration clientConfig = builder.build();
+        return new LettuceConnectionFactory(config, clientConfig);
     }
     
     @Bean
@@ -55,6 +85,10 @@ public class RedisConfig {
         RedisURI.Builder uriBuilder = RedisURI.builder()
                 .withHost(redisHost)
                 .withPort(redisPort);
+        
+        if (sslEnabled) {
+            uriBuilder.withSsl(true);
+        }
         
         if (redisPassword != null && !redisPassword.isEmpty()) {
             uriBuilder.withPassword(redisPassword.toCharArray());
