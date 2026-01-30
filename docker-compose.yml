@@ -4,10 +4,10 @@ services:
   postgres:
     image: postgres:latest
     container_name: postgres_container
-    environment: 
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: milyoner
+    # environment: 
+    #   POSTGRES_USER: 
+    #   POSTGRES_PASSWORD: 
+    #   POSTGRES_DB: 
     ports:
       - "5432:5432"
     volumes:
@@ -42,19 +42,20 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: milyoner_app
+    image: milyoner_backend
+    container_name: m_backend
     restart: unless-stopped
     ports:
       - "8080:8080"
-    environment:
-      DB_URL: jdbc:postgresql://postgres:5432/milyoner?currentSchema=game
-      DB_USERNAME: postgres
-      DB_PASSWORD: postgres
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-      REDIS_PASSWORD: ""
-      JWT_SECRET: ${JWT_SECRET:-your-secret-key-change-in-production}
-      JWT_EXPIRATION: ${JWT_EXPIRATION:-3600000}
+    # environment:
+    #   DB_URL: 
+    #   DB_USERNAME: 
+    #   DB_PASSWORD: 
+    #   REDIS_HOST: redis
+    #   REDIS_PORT: 6379
+    #   REDIS_PASSWORD: ""
+    #   JWT_SECRET: 
+    #   JWT_EXPIRATION: 
     depends_on:
       - postgres
       - redis

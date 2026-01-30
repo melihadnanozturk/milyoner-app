@@ -30,7 +30,7 @@ mvnw.cmd
 .mvn/wrapper/maven-wrapper.jar
 
 # Environment files
-.env
+# .env
 .env.local
 .env.*.local
 
