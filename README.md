@@ -233,11 +233,42 @@ The application uses two separate security filter chains:
 
 ### CORS Configuration
 
-CORS is configured to allow requests from:
-- `http://localhost:5173`
-- `http://127.0.0.1:5173`
+CORS allowed origins are configured via the `CORS_ALLOWED_ORIGINS` environment variable. This allows you to easily configure different origins for different environments (development, production, etc.).
 
-Update `SecurityConfig.java` to add additional origins if needed.
+**Configuration:**
+
+1. Set the `CORS_ALLOWED_ORIGINS` environment variable with comma-separated URLs:
+   ```bash
+   export CORS_ALLOWED_ORIGINS="http://localhost:5173,http://127.0.0.1:5173,https://yourdomain.com"
+   ```
+
+2. Or create a `.env` file in the project root (for use with docker-compose):
+   ```env
+   CORS_ALLOWED_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
+   ```
+
+3. Default values (if not set): `http://localhost:5173,http://127.0.0.1:5173`
+
+**Example `.env` file:**
+```env
+# Database Configuration
+DB_URL=jdbc:postgresql://localhost:5432/milyoner?currentSchema=game
+DB_USERNAME=postgres
+DB_PASSWORD=postgres
+
+# Redis Configuration
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_PASSWORD=
+REDIS_SSL=false
+
+# JWT Configuration
+JWT_SECRET=your-secret-key-change-in-production
+JWT_EXPIRATION=3600000
+
+# CORS Configuration
+CORS_ALLOWED_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
+```
 
 ## Project Structure
 

@@ -37,7 +37,9 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Configuration
 @EnableWebSecurity
@@ -48,6 +50,10 @@ public class SecurityConfig {
 
     @Value("${jwt.secret}")
     private String secretKey;
+
+    @Value("${cors.allowed-origins}")
+    private String allowedOrigins;
+
     private UserDetailsService adminUserDetailsService;
 
     public SecurityConfig(GameJwtConverter gameJwtConverter,
@@ -113,10 +119,13 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration cfg = new CorsConfiguration();
         cfg.setAllowCredentials(true);
-        cfg.setAllowedOrigins(List.of(
-                "http://localhost:5173",
-                "http://127.0.0.1:5173"
-        ));
+        
+        // Parse comma-separated origins from environment variable
+        List<String> origins = Arrays.stream(allowedOrigins.split(","))
+                .map(String::trim)
+                .filter(origin -> !origin.isEmpty())
+                .collect(Collectors.toList());
+        cfg.setAllowedOrigins(origins);
 
         cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 
