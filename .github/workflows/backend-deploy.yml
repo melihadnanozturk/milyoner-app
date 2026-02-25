@@ -1,0 +1,58 @@
+name: Deploy Milyoner Backend to Cloud Run
+
+on:
+  push:
+    branches: [ "main" ]
+
+env:
+  PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+  REGION: ${{ vars.GCP_REGION }}
+  DEPLOY_REGION: ${{vars.GCP_DEPLOY_REGION}}
+  SERVICE_NAME: milyoner-backend
+  GAR_REPO: maoco-repo
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: 'read'
+      id-token: 'write' # WIF için bu izin şart
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    # 1. Google Cloud Kimlik Doğrulaması (WIF)
+    - name: Google Auth
+      id: auth
+      uses: 'google-github-actions/auth@v2'
+      with:
+        workload_identity_provider: ${{ vars.WIF_PROVIDER }}
+        service_account: ${{ vars.GCP_SA_EMAIL }}
+
+    # 2. Docker Kimlik Doğrulaması (Artifact Registry için)
+    - name: Docker Auth
+      run: |-
+        gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
+
+       # 3. Docker İmajını Build Et ve Pushla
+    - name: Build and Push Container
+      run: |-
+        docker build \
+          -t "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.GAR_REPO }}/${{ env.SERVICE_NAME }}:${{ github.sha }}" .
+        docker push "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.GAR_REPO }}/${{ env.SERVICE_NAME }}:${{ github.sha }}"
+        
+    # 4. Cloud Run'a Deploy Et
+    - name: Deploy to Cloud Run
+      id: deploy
+      uses: 'google-github-actions/deploy-cloudrun@v2'
+      with:
+        service: ${{ env.SERVICE_NAME }}
+        region: ${{ env.DEPLOY_REGION }}
+        image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.GAR_REPO }}/${{ env.SERVICE_NAME }}:${{ github.sha }}
+        flags: '--allow-unauthenticated' # Herkesin erişebilmesi için
+
+   # 5. URL'i Yazdır (En güvenli yazım şekli budulur)
+    - name: Show Output
+      run: |
+        echo "Uygulama yayında: ${{ steps.deploy.outputs.url }}"
