@@ -42,5 +42,6 @@ notlar.txt
 
 ### Environment Variables ###
 .env
+.local-env
 .env.local
 .env.*.local
