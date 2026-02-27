@@ -35,13 +35,13 @@ jobs:
       run: |-
         gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
 
-       # 3. Docker İmajını Build Et ve Pushla
+    # 3. Docker İmajını Build Et ve Push'la
     - name: Build and Push Container
       run: |-
         docker build \
           -t "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.GAR_REPO }}/${{ env.SERVICE_NAME }}:${{ github.sha }}" .
         docker push "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.GAR_REPO }}/${{ env.SERVICE_NAME }}:${{ github.sha }}"
-        
+
     # 4. Cloud Run'a Deploy Et
     - name: Deploy to Cloud Run
       id: deploy
@@ -50,9 +50,21 @@ jobs:
         service: ${{ env.SERVICE_NAME }}
         region: ${{ env.DEPLOY_REGION }}
         image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.GAR_REPO }}/${{ env.SERVICE_NAME }}:${{ github.sha }}
-        flags: '--allow-unauthenticated' # Herkesin erişebilmesi için
+        flags: '--allow-unauthenticated --port=8080 --memory=512Mi'
+        env_vars: |
+          SPRING_PROFILES_ACTIVE=prod
+          DB_URL=${{ secrets.DB_URL }}
+          DB_USERNAME=${{ secrets.DB_USERNAME }}
+          DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+          REDIS_HOST=${{ secrets.REDIS_HOST }}
+          REDIS_PORT=${{ secrets.REDIS_PORT }}
+          REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
+          REDIS_SSL=${{ vars.REDIS_SSL }}
+          JWT_SECRET=${{ secrets.JWT_SECRET }}
+          JWT_EXPIRATION=${{ secrets.JWT_EXPIRATION }}
+          CORS_ALLOWED_ORIGINS=${{ vars.CORS_ALLOWED_ORIGINS }}
 
-   # 5. URL'i Yazdır (En güvenli yazım şekli budulur)
+    # 5. URL'i Yazdır
     - name: Show Output
       run: |
         echo "Uygulama yayında: ${{ steps.deploy.outputs.url }}"
