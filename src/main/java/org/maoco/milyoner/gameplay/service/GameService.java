@@ -2,6 +2,7 @@ package org.maoco.milyoner.gameplay.service;
 
 import jakarta.validation.Valid;
 import org.maoco.milyoner.common.error.GamePlayError;
+import org.maoco.milyoner.common.exception.InvalidSecurityContextException;
 import org.maoco.milyoner.common.exception.MilyonerException;
 import org.maoco.milyoner.common.exception.NotFoundException;
 import org.maoco.milyoner.common.security.GameAuthenticationToken;
@@ -147,18 +148,13 @@ public class GameService {
         return Game.buildGameFromGamerEntity(updatedGamer);
 
     }
-
-    private Boolean isAnswerCorrect(Long answerId, Long questionId) {
-        AnswerEntity answerEntity = questionQueryService.handleAnswer(questionId, answerId);
-        return answerEntity.getIsCorrect();
-    }
-
+    
     public UserScore getResult() {
         GameSessionContext session = getCurrentSession();
         GameEntity gameEntity = gamePersistenceService.findById(session.gameId());
-
+        
         UserScore userScore = new UserScore(gameEntity.getUsername(), gameEntity.getQuestionLevel(), gameEntity.getGameState());
-
+        
         if (gameEntity.getGameState() == GameState.WON) {
             userScore.setMessage("OYUNU KAZANDINIZ");
             return userScore;
@@ -166,9 +162,14 @@ public class GameService {
             userScore.setMessage("OYUNU KAYBETTİNİZ");
             return userScore;
         }
-
+        
         //todo: kullanıcı oyundan mı çıktı ? Yanlis mi cevap verdi ? Bunun kontrolü eklenebilir
         throw new MilyonerException(GamePlayError.INCORRECT_STATUS);
+    }
+
+    private Boolean isAnswerCorrect(Long answerId, Long questionId) {
+        AnswerEntity answerEntity = questionQueryService.handleAnswer(questionId, answerId);
+        return answerEntity.getIsCorrect();
     }
 
     private GameEntity checkUser(String id) {
@@ -193,6 +194,6 @@ public class GameService {
         if (auth instanceof GameAuthenticationToken gameAuth) {
             return gameAuth.getGameSessionContext();
         }
-        throw new IllegalStateException("Güvenlik bağlamı bulunamadı veya geçersiz!");
+        throw new InvalidSecurityContextException("Güvenlik bağlamı bulunamadı veya geçersiz!");
     }
 }

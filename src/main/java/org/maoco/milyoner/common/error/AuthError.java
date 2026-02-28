@@ -7,7 +7,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum AuthError implements Error {
 
-    USER_NOT_FOUND(2001, "User not found", "Kullanıcı bulunamadı");
+    USER_NOT_FOUND(2001, "User not found", "Kullanıcı bulunamadı"),
+    USERNAME_ALREADY_EXISTS(2002, "Username already exists", "Kullanıcı adı zaten mevcut");
 
     private final Integer code;
     private final String message;

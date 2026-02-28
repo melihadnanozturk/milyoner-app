@@ -1,6 +1,5 @@
 package org.maoco.milyoner.question.service;
 
-import org.apache.coyote.BadRequestException;
 import org.maoco.milyoner.common.error.CommonError;
 import org.maoco.milyoner.common.error.PanelError;
 import org.maoco.milyoner.common.exception.AnswerException;
@@ -46,7 +45,7 @@ public class AnswerOperationService {
     }
 
 
-    public Answer updateAnswer(UpdateAnswerRequest request) throws BadRequestException {
+    public Answer updateAnswer(UpdateAnswerRequest request) {
         AnswerEntity entity = repository.findById(request.getAnswerId())
                 .orElseThrow(() -> new NotFoundException(CommonError.NOT_FOUND.getMessage()));
 

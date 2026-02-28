@@ -3,7 +3,6 @@ package org.maoco.milyoner.question.web.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.BadRequestException;
 import org.maoco.milyoner.common.ApiResponse;
 import org.maoco.milyoner.question.domain.Answer;
 import org.maoco.milyoner.question.service.AnswerOperationService;
@@ -34,7 +33,7 @@ public class AnswerOperationController {
     }
 
     @PutMapping("/{id}")
-    public ApiResponse<AnswerResponse> updateAnswer(@PathVariable Long id, @Valid @RequestBody UpdateAnswerRequest request) throws BadRequestException {
+    public ApiResponse<AnswerResponse> updateAnswer(@PathVariable Long id, @Valid @RequestBody UpdateAnswerRequest request) {
         request.setAnswerId(id);
         Answer updatedAnswer = answerOperationService.updateAnswer(request);
 

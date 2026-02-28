@@ -1,5 +1,6 @@
 package org.maoco.milyoner.question.service;
 
+import org.maoco.milyoner.common.exception.UsernameAlreadyExistsException;
 import org.maoco.milyoner.question.data.entity.UserEntity;
 import org.maoco.milyoner.question.data.entity.UserRoles;
 import org.maoco.milyoner.question.data.repository.UserRepository;
@@ -42,8 +43,7 @@ public class UserService {
 
     private void checkUserName(String username) {
         if (userRepository.findByUsername(username).isPresent()) {
-            //todo: must Exception edited
-            throw new RuntimeException("Username already exists");
+            throw new UsernameAlreadyExistsException();
         }
     }
 }
