@@ -39,6 +39,7 @@ build/
 sorular.txt
 yapilacaklar.txt
 notlar.txt
+AGENTS.md
 
 ### Environment Variables ###
 .env
